@@ -1,0 +1,43 @@
+# ===== Maven =====
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ===== Java =====
+*.class
+*.jar
+*.war
+*.ear
+
+# ===== macOS =====
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ===== IDE =====
+.idea/
+*.iml
+.ipr
+.project
+.classpath
+.settings/
+.vscode/
+*.swp
+*.swo
+
+# ===== Logs =====
+*.log
+
+# ===== Environment =====
+.env
+.env.*
+!.env.example
+
+# ===== LobeHub Skills (local) =====
+.agents/
+
+# ===== OS generated =====
+Thumbs.db
+ehthumbs.db
+Desktop.ini
