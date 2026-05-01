@@ -1,9 +1,16 @@
 package com.streaming.music.model;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@EqualsAndHashCode(of = "id")
+@ToString
 public class Album {
     private final UUID id;
     private final String titulo;
@@ -17,28 +24,5 @@ public class Album {
         this.fechaLanzamiento = Objects.requireNonNull(fechaLanzamiento);
         this.artistaId = Objects.requireNonNull(artistaId);
         this.productoraId = Objects.requireNonNull(productoraId);
-    }
-
-    public UUID getId() { return id; }
-    public String getTitulo() { return titulo; }
-    public LocalDate getFechaLanzamiento() { return fechaLanzamiento; }
-    public UUID getArtistaId() { return artistaId; }
-    public UUID getProductoraId() { return productoraId; }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Album other)) return false;
-        return Objects.equals(id, other.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Album{titulo='%s', fecha=%s}".formatted(titulo, fechaLanzamiento);
     }
 }

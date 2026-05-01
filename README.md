@@ -15,7 +15,7 @@ Plataforma de streaming de música estilo Spotify desarrollada con **Java 21** y
 | Framework | Spring Boot 3.5.x |
 | API | REST + Swagger/OpenAPI (springdoc) |
 | Concurrencia | Virtual Threads + AtomicInteger |
-| Almacenamiento | In-memory (ConcurrentHashMap) |
+| Almacenamiento | In-memory (ConcurrentHashMap + HashMap) |
 | Tests | JUnit 5 + TestRestTemplate |
 | Build | Maven |
 
@@ -139,7 +139,7 @@ Cada canción se evalúa contra todos los predicados combinados con AND.
 
 ## Postman
 
-Importa `postman_collection.json` en Postman para probar todos los endpoints. Contiene 18 requests de prueba.
+Importa `postman_collection.json` en Postman para probar todos los endpoints. Contiene 20 requests de prueba.
 
 ## Arquitectura de Agentes
 
@@ -159,7 +159,7 @@ src/main/java/com/streaming/music/
 ├── service/          # Lógica de negocio
 │   └── estrategia/   # Patrón Strategy (3 implementaciones)
 ├── repository/       # Almacenamiento en memoria
-├── model/            # Entidades (Records + Cancion)
+├── model/            # Entidades (clases regulares + Genero enum)
 ├── dto/              # Data Transfer Objects
 ├── exception/        # @RestControllerAdvice global
 ├── config/           # DataInitializer (seed data)
@@ -171,7 +171,7 @@ src/main/java/com/streaming/music/
 - **Virtual Threads**: `Executors.newVirtualThreadPerTaskExecutor()` en tests de concurrencia
 - **Records**: `CancionDTO`, `ArtistaDTO`, `AlbumDTO`, `ProductoraDTO` son Records inmutables (DTOs)
 - **Classes**: `Cancion`, `Artista`, `Album`, `Productora` son clases regulares con campos `final` + getters (entidades mutables/preparadas para JPA)
-- **Pattern Matching**: `switch` con patrones en `BusquedaService.ordenarPersonalizado()`
+- **Switch Expressions**: `switch` mejorado en `BusquedaService.ordenarPersonalizado()`
 - **AtomicInteger**: Contador thread-safe de reproducciones en `Cancion`
 - **Streams API**: `groupingBy`, `averagingDouble`, `maxBy`, filtros compuestos
 - **String.formatted()**: Formatos de string modernos en `toString()`

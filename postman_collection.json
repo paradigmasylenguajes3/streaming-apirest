@@ -278,6 +278,20 @@
               "path": ["api", "albumes"]
             }
           }
+        },
+        {
+          "name": "GET - Álbum por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/albumes/{id}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "albumes", "{{albumId}}"]
+            }
+          }
         }
       ]
     },
@@ -297,6 +311,20 @@
               "path": ["api", "productoras"]
             }
           }
+        },
+        {
+          "name": "GET - Productora por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/productoras/{id}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "productoras", "{{productoraId}}"]
+            }
+          }
         }
       ]
     }
@@ -308,6 +336,14 @@
     },
     {
       "key": "artistaId",
+      "value": ""
+    },
+    {
+      "key": "albumId",
+      "value": ""
+    },
+    {
+      "key": "productoraId",
       "value": ""
     }
   ]

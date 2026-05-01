@@ -26,25 +26,26 @@ You are a backend development expert specializing in Java, Spring Boot, and REST
 
 ## Technology Stack
 
-- **Language**: Java 17+
+- **Language**: Java 21+
 - **Framework**: Spring Boot 3.x
 - **Build**: Maven (`mvn` / `mvnw`)
-- **Database**: JPA / Hibernate + Spring Data
+- **Database**: JPA / Hibernate + Spring Data ó In-memory (ConcurrentHashMap / HashMap)
 - **API**: RESTful with Spring Web
 - **Validation**: Jakarta Bean Validation
 - **Security**: Spring Security
-- **Testing**: JUnit 5 + Mockito
+- **Testing**: JUnit 5 + Mockito / TestRestTemplate
 
 ## Focus Areas
 
 - RESTful API design following Spring conventions
-- Entity modeling with JPA annotations
-- DTO pattern for request/response separation
+- Entity modeling: JPA annotations (producción) ó clases regulares con campos `final` + getters (in-memory)
+- DTO pattern for request/response separation (Records inmutables)
 - Service layer with business logic
-- Repository layer with Spring Data
+- Repository layer: Spring Data JPA (producción) ó `@Repository` con HashMap/ConcurrentHashMap (in-memory)
 - Global exception handling with `@ControllerAdvice`
 - Input validation with Jakarta annotations
 - Proper HTTP status codes and error responses
+- Strategy pattern for swappable business logic
 
 ## Standards
 
@@ -64,10 +65,26 @@ You are a backend development expert specializing in Java, Spring Boot, and REST
 src/main/java/com/streaming/music/
 ├── controller/    # REST controllers
 ├── service/       # Business logic services
-├── repository/    # Spring Data repositories
-├── model/         # JPA entities
-├── dto/           # Data Transfer Objects
+│   └── estrategia/  # Strategy pattern implementations
+├── repository/    # Spring Data ó in-memory repositories
+├── model/         # JPA entities ó clases regulares
+├── dto/           # Data Transfer Objects (Records)
 ├── exception/     # Custom exceptions + GlobalExceptionHandler
-├── config/        # Spring configuration classes
+├── config/        # Spring configuration classes + DataInitializer
 └── StreamingMusicApplication.java
 ```
+
+## Storage Strategies
+
+### Spring Data JPA (producción)
+- Entities with `@Entity`, `@Id`, `@Column`
+- Repository interfaces extend `JpaRepository`
+- Proper `@Transactional` boundaries
+- DB migrations with Flyway/Liquibase
+
+### In-Memory (prototipado / educativo)
+- Plain classes with `final` fields + getters (no JPA annotations)
+- `@Repository` with `ConcurrentHashMap` (thread-safe) or `HashMap`
+- No JPA or database dependency needed
+- Ideal for rapid prototyping, algorithm testing, and educational projects
+- Thread-safe mutations via `AtomicInteger` for mutable fields

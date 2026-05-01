@@ -1,8 +1,15 @@
 package com.streaming.music.model;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@EqualsAndHashCode(of = "id")
+@ToString
 public class Productora {
     private final UUID id;
     private final String nombre;
@@ -12,26 +19,5 @@ public class Productora {
         this.id = (id != null) ? id : UUID.randomUUID();
         this.nombre = Objects.requireNonNull(nombre);
         this.pais = Objects.requireNonNull(pais);
-    }
-
-    public UUID getId() { return id; }
-    public String getNombre() { return nombre; }
-    public String getPais() { return pais; }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Productora other)) return false;
-        return Objects.equals(id, other.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Productora{nombre='%s', pais='%s'}".formatted(nombre, pais);
     }
 }
