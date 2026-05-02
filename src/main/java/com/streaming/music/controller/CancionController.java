@@ -1,14 +1,11 @@
 package com.streaming.music.controller;
 
 import com.streaming.music.dto.CancionDTO;
-import com.streaming.music.exception.CancionNotFoundException;
 import com.streaming.music.model.Genero;
 import com.streaming.music.service.CancionService;
 import com.streaming.music.service.ProcesamientoCancionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
