@@ -27,13 +27,70 @@ mvn spring-boot:run
 
 La API estará disponible en: `http://localhost:8080`
 
-## Swagger UI
+## Swagger UI / OpenAPI
 
-Accede a la documentación interactiva en:
+La API incluye documentación interactiva generada automáticamente con **springdoc-openapi** (implementación de OpenAPI 3.0 para Spring Boot). Cada endpoint está anotado con `@Tag`, `@Operation` y `@ApiResponse`, lo que permite explorar y probar la API desde el navegador sin herramientas externas.
 
-**http://localhost:8080/swagger-ui.html**
+### Dependencia
 
-Todos los endpoints están documentados con `@Tag`, `@Operation` y `@ApiResponse`.
+```xml
+<!-- pom.xml -->
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>2.8.6</version>
+</dependency>
+```
+
+### URLs de acceso
+
+| URL | Descripción |
+|---|---|
+| `http://localhost:8080/swagger-ui.html` | Interfaz interactiva Swagger UI — probar endpoints desde el navegador |
+| `http://localhost:8080/v3/api-docs` | Especificación OpenAPI 3.0 en JSON — importable en Postman, curl, etc. |
+
+### Anotaciones utilizadas
+
+| Anotación | Dónde se usa | Propósito |
+|---|---|---|
+| `@Tag(name, description)` | Clase (controller) | Agrupa endpoints en una sección de Swagger UI |
+| `@Operation(summary, description)` | Método (endpoint) | Describe qué hace el endpoint |
+| `@ApiResponse(responseCode, description)` | Método | Documenta un código de respuesta HTTP (200, 404, 400) |
+| `@ApiResponses({...})` | Método | Agrupa múltiples `@ApiResponse` para un mismo endpoint |
+| `@Parameter(description, required, example)` | Parámetro de método | Documenta `@PathVariable`, `@RequestParam` |
+
+### Ejemplo: cómo se ve un endpoint documentado en código
+
+```java
+@GetMapping("/buscar")
+@Operation(summary = "Buscar canciones con filtros compuestos",
+        description = "Filtra canciones por género, rating mínimo y duración máxima usando Streams API")
+@ApiResponse(responseCode = "200", description = "Resultado del filtrado")
+public ResponseEntity<List<CancionDTO>> buscar(
+        @Parameter(description = "Género musical (ROCK, POP, JAZZ, ELECTRÓNICA, CLÁSICA)")
+        @RequestParam(required = false) Genero genero,
+        @Parameter(description = "Rating mínimo (0.0 - 5.0)")
+        @RequestParam(required = false) Integer ratingMinimo,
+        @Parameter(description = "Duración máxima en segundos")
+        @RequestParam(required = false) Integer duracionMaxima) {
+    return ResponseEntity.ok(cancionService.filtrar(genero, ratingMinimo, duracionMaxima));
+}
+```
+
+En Swagger UI, esto se traduce en una sección desplegable con formulario de prueba, esquema de respuesta JSON y códigos de estado documentados.
+
+### Tags de la API
+
+| Tag | Controlador | Endpoints |
+|---|---|---|
+| **Canciones** | `CancionController` | 14 endpoints (CRUD, búsqueda, recomendaciones, estadísticas, playlist) |
+| **Artistas** | `ArtistaController` | 2 endpoints (listar, obtener por ID) |
+| **Álbumes** | `AlbumController` | 2 endpoints (listar, obtener por ID) |
+| **Productoras** | `ProductoraController` | 2 endpoints (listar, obtener por ID) |
+
+### Importar en Postman
+
+Desde la URL `http://localhost:8080/v3/api-docs` se puede importar la colección directamente en Postman (Import → Link → pegar la URL), generando automáticamente todos los requests con sus parámetros documentados.
 
 ## Endpoints Principales
 
