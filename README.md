@@ -47,7 +47,7 @@ La API incluye documentación interactiva generada automáticamente con **spring
 | URL | Descripción |
 |---|---|
 | `http://localhost:8080/swagger-ui.html` | Interfaz interactiva Swagger UI — probar endpoints desde el navegador |
-| `http://localhost:8080/v3/api-docs` | Especificación OpenAPI 3.0 en JSON — importable en Postman, curl, etc. |
+| `http://localhost:8080/api-docs` | Especificación OpenAPI 3.0 en JSON — importable en Postman, curl, etc. |
 
 ### Anotaciones utilizadas
 
@@ -90,7 +90,7 @@ En Swagger UI, esto se traduce en una sección desplegable con formulario de pru
 
 ### Importar en Postman
 
-Desde la URL `http://localhost:8080/v3/api-docs` se puede importar la colección directamente en Postman (Import → Link → pegar la URL), generando automáticamente todos los requests con sus parámetros documentados.
+Desde la URL `http://localhost:8080/api-docs` se puede importar la colección directamente en Postman (Import → Link → pegar la URL), generando automáticamente todos los requests con sus parámetros documentados.
 
 ## Endpoints Principales
 
