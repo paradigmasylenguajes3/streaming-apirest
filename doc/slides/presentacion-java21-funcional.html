@@ -1152,6 +1152,14 @@ c.<span class="me">incrementarReproducciones</span>();   <span class="cm">// Ato
 <span class="ln">4</span>  <span class="op">&lt;</span><span class="ty">version</span><span class="op">&gt;</span><span class="nu">2.8.6</span><span class="op">&lt;/</span><span class="ty">version</span><span class="op">&gt;</span>
 <span class="ln">5</span><span class="op">&lt;/</span><span class="ty">dependency</span><span class="op">&gt;</span></pre>
           </div>
+          <div class="code-block" style="margin:8px 0 0 0;">
+            <div class="code-header" style="padding:6px 12px;">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="code-filename">application.properties</span></div>
+              <span class="badge badge-yellow">Rutas personalizadas</span>
+            </div>
+            <pre class="code" style="font-size:11.5px;"><span class="ln">1</span><span class="ty">springdoc</span>.api-docs.path=<span class="str">/api-docs</span>
+<span class="ln">2</span><span class="ty">springdoc</span>.swagger-ui.path=<span class="str">/swagger-ui.html</span></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:12px 16px;flex:1;">
@@ -1227,13 +1235,13 @@ c.<span class="me">incrementarReproducciones</span>();   <span class="cm">// Ato
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="card" style="padding:12px 14px;background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.25);">
             <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px;">Swagger UI</div>
-            <code style="font-family:JetBrains Mono,monospace;font-size:10.5px;color:var(--str);">localhost:8080/swagger-ui/<br>index.html</code>
+            <code style="font-family:JetBrains Mono,monospace;font-size:10.5px;color:var(--str);">localhost:8080/swagger-ui.html</code>
             <div style="font-size:11px;color:var(--text2);margin-top:6px;">Interfaz interactiva — permite probar cada endpoint directamente desde el navegador</div>
           </div>
           <div class="card" style="padding:12px 14px;background:rgba(79,142,247,.07);border-color:rgba(79,142,247,.25);">
-            <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px;">Especificación OpenAPI</div>
-            <code style="font-family:JetBrains Mono,monospace;font-size:10.5px;color:var(--str);">localhost:8080/v3/api-docs<br>localhost:8080/v3/api-docs.yaml</code>
-            <div style="font-size:11px;color:var(--text2);margin-top:6px;">JSON / YAML exportable — compatible con Postman, Insomnia y generadores de clientes</div>
+            <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px;">Especificación OpenAPI (JSON)</div>
+            <code style="font-family:JetBrains Mono,monospace;font-size:10.5px;color:var(--str);">localhost:8080/api-docs</code>
+            <div style="font-size:11px;color:var(--text2);margin-top:6px;">Rutas personalizadas en <code style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--yellow);">application.properties</code> — compatibles con Postman e Insomnia</div>
           </div>
         </div>
 
