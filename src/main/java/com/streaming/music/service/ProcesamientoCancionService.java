@@ -1,5 +1,6 @@
 package com.streaming.music.service;
 
+import com.streaming.music.model.Artista;
 import com.streaming.music.model.Cancion;
 import com.streaming.music.model.Genero;
 import com.streaming.music.repository.CancionRepository;
@@ -42,7 +43,7 @@ public class ProcesamientoCancionService {
     public ArtistaEstadistica artistaMasPopular() {
         return cancionRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
-                        Cancion::getArtistaId,
+                        Cancion::getArtista,
                         Collectors.summingInt(Cancion::getReproducciones)))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -57,5 +58,5 @@ public class ProcesamientoCancionService {
                         Collectors.counting()));
     }
 
-    public record ArtistaEstadistica(UUID artistaId, int totalReproducciones) {}
+    public record ArtistaEstadistica(Artista artista, int totalReproducciones) {}
 }

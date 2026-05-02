@@ -20,12 +20,12 @@ public class Cancion {
     private final AtomicInteger reproducciones;
     private final double rating;
     private final LocalDate fechaLanzamiento;
-    private final UUID artistaId;
-    private final UUID albumId;
+    private final Artista artista;
+    private final Album album;
 
     public Cancion(String titulo, Genero genero, int duracionSegundos,
                    double rating, LocalDate fechaLanzamiento,
-                   UUID artistaId, UUID albumId) {
+                   Artista artista, Album album) {
         this.id = UUID.randomUUID();
         this.titulo = Objects.requireNonNull(titulo);
         this.genero = Objects.requireNonNull(genero);
@@ -33,8 +33,8 @@ public class Cancion {
         this.reproducciones = new AtomicInteger(0);
         this.rating = rating;
         this.fechaLanzamiento = Objects.requireNonNull(fechaLanzamiento);
-        this.artistaId = Objects.requireNonNull(artistaId);
-        this.albumId = Objects.requireNonNull(albumId);
+        this.artista = Objects.requireNonNull(artista);
+        this.album = Objects.requireNonNull(album);
     }
 
     public int getReproducciones() {

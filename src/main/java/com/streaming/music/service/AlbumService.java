@@ -4,7 +4,11 @@ import com.streaming.music.dto.AlbumDTO;
 import com.streaming.music.dto.CreateAlbumRequest;
 import com.streaming.music.dto.UpdateAlbumRequest;
 import com.streaming.music.exception.AlbumNotFoundException;
+import com.streaming.music.exception.ArtistaNotFoundException;
+import com.streaming.music.exception.ProductoraNotFoundException;
 import com.streaming.music.model.Album;
+import com.streaming.music.model.Artista;
+import com.streaming.music.model.Productora;
 import com.streaming.music.repository.AlbumRepository;
 import com.streaming.music.repository.ArtistaRepository;
 import com.streaming.music.repository.ProductoraRepository;
@@ -41,14 +45,12 @@ public class AlbumService {
     }
 
     public AlbumDTO create(CreateAlbumRequest request) {
-        if (!artistaRepository.existsById(request.artistaId())) {
-            throw new IllegalArgumentException("Artista no encontrado con ID: " + request.artistaId());
-        }
-        if (!productoraRepository.existsById(request.productoraId())) {
-            throw new IllegalArgumentException("Productora no encontrada con ID: " + request.productoraId());
-        }
+        Artista artista = artistaRepository.findById(request.artistaId())
+                .orElseThrow(() -> new ArtistaNotFoundException(request.artistaId()));
+        Productora productora = productoraRepository.findById(request.productoraId())
+                .orElseThrow(() -> new ProductoraNotFoundException(request.productoraId()));
         Album album = new Album(null, request.titulo(), request.fechaLanzamiento(),
-                request.artistaId(), request.productoraId());
+                artista, productora);
         Album saved = albumRepository.save(album);
         return AlbumDTO.from(saved);
     }
@@ -56,14 +58,12 @@ public class AlbumService {
     public AlbumDTO update(UUID id, UpdateAlbumRequest request) {
         albumRepository.findById(id)
                 .orElseThrow(() -> new AlbumNotFoundException(id));
-        if (!artistaRepository.existsById(request.artistaId())) {
-            throw new IllegalArgumentException("Artista no encontrado con ID: " + request.artistaId());
-        }
-        if (!productoraRepository.existsById(request.productoraId())) {
-            throw new IllegalArgumentException("Productora no encontrada con ID: " + request.productoraId());
-        }
+        Artista artista = artistaRepository.findById(request.artistaId())
+                .orElseThrow(() -> new ArtistaNotFoundException(request.artistaId()));
+        Productora productora = productoraRepository.findById(request.productoraId())
+                .orElseThrow(() -> new ProductoraNotFoundException(request.productoraId()));
         Album updated = new Album(id, request.titulo(), request.fechaLanzamiento(),
-                request.artistaId(), request.productoraId());
+                artista, productora);
         albumRepository.save(updated);
         return AlbumDTO.from(updated);
     }
