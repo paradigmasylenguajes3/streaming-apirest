@@ -89,12 +89,8 @@ Aplica una función a cada elemento y retorna un stream con los resultados.
 ```java
 // Ejemplo del proyecto — CancionService.toDTO()
 private CancionDTO toDTO(Cancion cancion) {
-    ArtistaDTO artistaDTO = artistaRepository.findById(cancion.getArtistaId())
-            .map(ArtistaDTO::from)          // map sobre Optional
-            .orElse(null);
-    AlbumDTO albumDTO = albumRepository.findById(cancion.getAlbumId())
-            .map(AlbumDTO::from)            // map sobre Optional
-            .orElse(null);
+    ArtistaDTO artistaDTO = ArtistaDTO.from(cancion.getArtista());
+    AlbumDTO albumDTO = AlbumDTO.from(cancion.getAlbum());
     return CancionDTO.from(cancion, artistaDTO, albumDTO);
 }
 
@@ -239,10 +235,10 @@ Map<Genero, Double> promedioRating = cancionRepository.findAll().stream()
                 Collectors.averagingDouble(Cancion::getRating)  // downstream
         ));
 
-// Ejemplo 3 — Agrupar por artistaId + suma de reproducciones
-Map<UUID, Integer> reproduccionesPorArtista = cancionRepository.findAll().stream()
+// Ejemplo 3 — Agrupar por artista + suma de reproducciones
+Map<Artista, Integer> reproduccionesPorArtista = cancionRepository.findAll().stream()
         .collect(Collectors.groupingBy(
-                Cancion::getArtistaId,                     // clasificador
+                Cancion::getArtista,                     // clasificador
                 Collectors.summingInt(Cancion::getReproducciones)  // downstream
         ));
 
@@ -275,9 +271,9 @@ Map<Genero, Double> promedioRating = canciones.stream()
 
 ```java
 // Total de reproducciones por artista
-Map<UUID, Integer> totalPorArtista = canciones.stream()
+Map<Artista, Integer> totalPorArtista = canciones.stream()
         .collect(Collectors.groupingBy(
-                Cancion::getArtistaId,
+                Cancion::getArtista,
                 Collectors.summingInt(Cancion::getReproducciones)
         ));
 ```
@@ -341,10 +337,10 @@ int sumaPesos = widgets.stream()
 public ArtistaEstadistica artistaMasPopular() {
     return cancionRepository.findAll().stream()
             .collect(Collectors.groupingBy(
-                    Cancion::getArtistaId,
+                    Cancion::getArtista,
                     Collectors.summingInt(Cancion::getReproducciones)))
             .entrySet().stream()
-            .max(Map.Entry.comparingByValue())              // Optional<Map.Entry<UUID, Integer>>
+            .max(Map.Entry.comparingByValue())              // Optional<Map.Entry<Artista, Integer>>
             .map(e -> new ArtistaEstadistica(e.getKey(), e.getValue()))
             .orElse(null);
 }
@@ -457,9 +453,8 @@ public CancionDTO findById(UUID id) {
 
 // Service — map para transformar si está presente
 private CancionDTO toDTO(Cancion cancion) {
-    ArtistaDTO artistaDTO = artistaRepository.findById(cancion.getArtistaId())
-            .map(ArtistaDTO::from)       // transforma Optional<Artista> → Optional<ArtistaDTO>
-            .orElse(null);               // valor por defecto si no existe
+    ArtistaDTO artistaDTO = ArtistaDTO.from(cancion.getArtista());
+    AlbumDTO albumDTO = AlbumDTO.from(cancion.getAlbum());
     // ...
 }
 ```
@@ -711,7 +706,7 @@ Comparator<Artista> conNulls = Comparator.comparing(
 public ArtistaEstadistica artistaMasPopular() {
     return cancionRepository.findAll().stream()                                    // FUENTE
             .collect(Collectors.groupingBy(                                        // TERMINAL (collect)
-                    Cancion::getArtistaId,                                         //   clasificador
+                    Cancion::getArtista,                                         //   clasificador
                     Collectors.summingInt(Cancion::getReproducciones)))            //   downstream
             .entrySet().stream()                                                   // FUENTE (Map → Stream)
             .max(Map.Entry.comparingByValue())                                     // TERMINAL (max)
@@ -724,8 +719,8 @@ public ArtistaEstadistica artistaMasPopular() {
 
 ```java
 // Convertir Map a Stream de entradas para procesar
-Map<UUID, Integer> reproduccionesPorArtista = canciones.stream()
-        .collect(Collectors.groupingBy(Cancion::getArtistaId,
+Map<Artista, Integer> reproduccionesPorArtista = canciones.stream()
+        .collect(Collectors.groupingBy(Cancion::getArtista,
                 Collectors.summingInt(Cancion::getReproducciones)));
 
 // Encontrar el artista con más reproducciones

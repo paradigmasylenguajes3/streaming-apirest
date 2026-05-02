@@ -484,7 +484,7 @@ tr:hover td { background: #1E2235; }
 <span class="ln">14</span>}
 <span class="ln">15</span>
 <span class="ln">16</span><span class="cm">// ③ Artista más popular — groupingBy + summingInt</span>
-<span class="ln">17</span>.<span class="me">collect</span>(<span class="ty">Collectors</span>.<span class="me">groupingBy</span>(<span class="ty">Cancion</span>::<span class="me">getArtistaId</span>,
+<span class="ln">17</span>.<span class="me">collect</span>(<span class="ty">Collectors</span>.<span class="me">groupingBy</span>(<span class="ty">Cancion</span>::<span class="me">getArtista</span>,
 <span class="ln">18</span>         <span class="ty">Collectors</span>.<span class="me">summingInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>)))</pre>
       </div>
 
@@ -535,7 +535,7 @@ tr:hover td { background: #1E2235; }
 <span class="ln">3</span>    .<span class="me">orElseThrow</span>(() <span class="op">-></span> <span class="kw">new</span> <span class="ty">CancionNotFoundException</span>(id));
 <span class="ln">4</span>
 <span class="ln">5</span><span class="cm">// map — transforma si presente</span>
-<span class="ln">6</span>artistaRepository.<span class="me">findById</span>(cancion.<span class="me">getArtistaId</span>())
+<span class="ln">6</span><span class="ty">ArtistaDTO</span>.<span class="me">from</span>(cancion.<span class="me">getArtista</span>())
 <span class="ln">7</span>    .<span class="me">map</span>(<span class="ty">ArtistaDTO</span>::<span class="me">from</span>)
 <span class="ln">8</span>    .<span class="me">orElse</span>(<span class="kw">null</span>);</pre>
         </div>
@@ -859,14 +859,12 @@ opt.<span class="me">get</span>(); <span class="cm">// NoSuchElementException si
 <span class="ln">5</span>    .<span class="me">flatMap</span>(<span class="ty">Optional</span>::<span class="me">stream</span>)        <span class="cm">// filtra los empty()</span>
 <span class="ln">6</span>    .<span class="me">toList</span>();                          <span class="cm">// solo las existentes</span>
 <span class="ln">7</span>
-<span class="ln">8</span><span class="cm">// CancionService.java — toDTO con Optional.map</span>
+<span class="ln">8</span><span class="cm">// CancionService.java — acceso directo a objetos</span>
 <span class="ln">9</span><span class="kw">private</span> <span class="ty">CancionDTO</span> <span class="me">toDTO</span>(<span class="ty">Cancion</span> cancion) {
-<span class="ln">10</span>    <span class="ty">ArtistaDTO</span> artistaDTO <span class="op">=</span> artistaRepository
-<span class="ln">11</span>        .<span class="me">findById</span>(cancion.<span class="me">getArtistaId</span>())
-<span class="ln">12</span>        .<span class="me">map</span>(<span class="ty">ArtistaDTO</span>::<span class="me">from</span>)
-<span class="ln">13</span>        .<span class="me">orElse</span>(<span class="kw">null</span>);
-<span class="ln">14</span>    <span class="kw">return</span> <span class="ty">CancionDTO</span>.<span class="me">from</span>(cancion, artistaDTO, albumDTO);
-<span class="ln">15</span>}</pre>
+<span class="ln">10</span>    <span class="ty">ArtistaDTO</span> artistaDTO <span class="op">=</span> <span class="ty">ArtistaDTO</span>.<span class="me">from</span>(cancion.<span class="me">getArtista</span>());
+<span class="ln">11</span>    <span class="ty">AlbumDTO</span> albumDTO <span class="op">=</span> <span class="ty">AlbumDTO</span>.<span class="me">from</span>(cancion.<span class="me">getAlbum</span>());
+<span class="ln">12</span>    <span class="kw">return</span> <span class="ty">CancionDTO</span>.<span class="me">from</span>(cancion, artistaDTO, albumDTO);
+<span class="ln">13</span>}</pre>
         </div>
       </div>
 
@@ -929,7 +927,7 @@ opt.<span class="me">get</span>(); <span class="cm">// NoSuchElementException si
 <span class="ln">3</span>
 <span class="ln">4</span>        <span class="cm">// ① Agrupar por artista, sumar reproducciones</span>
 <span class="ln">5</span>        .<span class="me">collect</span>(<span class="ty">Collectors</span>.<span class="me">groupingBy</span>(
-<span class="ln">6</span>            <span class="ty">Cancion</span>::<span class="me">getArtistaId</span>,
+<span class="ln">6</span>            <span class="ty">Cancion</span>::<span class="me">getArtista</span>,
 <span class="ln">7</span>            <span class="ty">Collectors</span>.<span class="me">summingInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>)
 <span class="ln">8</span>        ))
 <span class="ln">9</span>

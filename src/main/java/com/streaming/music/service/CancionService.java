@@ -15,8 +15,6 @@ import java.util.UUID;
 public class CancionService {
 
     private final CancionRepository cancionRepository;
-    private final ArtistaRepository artistaRepository;
-    private final AlbumRepository albumRepository;
     private final RecomendacionPorGenero recomendacionPorGenero;
     private final RecomendacionPorPopularidad recomendacionPorPopularidad;
     private final RecomendacionDescubrimiento recomendacionDescubrimiento;
@@ -25,8 +23,6 @@ public class CancionService {
     private final BusquedaService busquedaService;
 
     public CancionService(CancionRepository cancionRepository,
-                          ArtistaRepository artistaRepository,
-                          AlbumRepository albumRepository,
                           RecomendacionPorGenero recomendacionPorGenero,
                           RecomendacionPorPopularidad recomendacionPorPopularidad,
                           RecomendacionDescubrimiento recomendacionDescubrimiento,
@@ -34,8 +30,6 @@ public class CancionService {
                           PlaylistService playlistService,
                           BusquedaService busquedaService) {
         this.cancionRepository = cancionRepository;
-        this.artistaRepository = artistaRepository;
-        this.albumRepository = albumRepository;
         this.recomendacionPorGenero = recomendacionPorGenero;
         this.recomendacionPorPopularidad = recomendacionPorPopularidad;
         this.recomendacionDescubrimiento = recomendacionDescubrimiento;
@@ -137,12 +131,8 @@ public class CancionService {
     }
 
     private CancionDTO toDTO(Cancion cancion) {
-        ArtistaDTO artistaDTO = artistaRepository.findById(cancion.getArtistaId())
-                .map(ArtistaDTO::from)
-                .orElse(null);
-        AlbumDTO albumDTO = albumRepository.findById(cancion.getAlbumId())
-                .map(AlbumDTO::from)
-                .orElse(null);
+        ArtistaDTO artistaDTO = ArtistaDTO.from(cancion.getArtista());
+        AlbumDTO albumDTO = AlbumDTO.from(cancion.getAlbum());
         return CancionDTO.from(cancion, artistaDTO, albumDTO);
     }
 }
