@@ -137,6 +137,85 @@ backtrack(canciones, index, remaining):
 
 Cada canción se evalúa contra todos los predicados combinados con AND.
 
+## Patrón de Diseño: Strategy
+
+El patrón **Strategy** permite definir una familia de algoritmos, encapsular cada uno en su propia clase y hacerlos intercambiables en tiempo de ejecución. Se aplica al **sistema de recomendaciones de canciones**.
+
+### ¿Por qué Strategy y no métodos en el Service?
+
+| Criterio | Sin Strategy | Con Strategy |
+|---|---|---|
+| Agregar nuevo algoritmo | Modificar `CancionService` (viola OCP) | Crear nueva clase que implemente la interface |
+| Testear algoritmo | Testear todo el service | Testear la estrategia de forma aislada |
+| Reutilizar | No se puede sin copiar código | Cualquier service puede inyectar la estrategia |
+| SRP | Service con lógica de negocio + recomendación | Service solo orquesta; la lógica vive en su estrategia |
+
+### Estructura
+
+```
+service/estrategia/
+├── EstrategiaRecomendacion.java        ← Interface (Strategy)
+├── RecomendacionPorGenero.java         ← Estrategia concreta #1
+├── RecomendacionPorPopularidad.java    ← Estrategia concreta #2
+└── RecomendacionDescubrimiento.java    ← Estrategia concreta #3
+```
+
+### Interface Strategy
+
+```java
+@FunctionalInterface
+public interface EstrategiaRecomendacion {
+    List<Cancion> recomendar(List<Cancion> catalogo, Cancion base);
+}
+```
+
+Define el contrato común: dado un catálogo completo y una canción base, retorna una lista de canciones recomendadas. Anotada con `@FunctionalInterface` para permitir también el uso con lambdas.
+
+### Estrategias Concretas
+
+| Estrategia | Lógica del algoritmo | Endpoint |
+|---|---|---|
+| **RecomendacionPorGenero** | Filtra canciones del mismo género que la base, ordena por reproducciones descendente, retorna hasta 10 | `GET /api/canciones/{id}/recomendaciones/genero` |
+| **RecomendacionPorPopularidad** | Toma todo el catálogo (excluyendo la base), ordena por reproducciones descendente, retorna el top 5 | `GET /api/canciones/recomendaciones/top5?baseId=X` |
+| **RecomendacionDescubrimiento** | Filtra canciones con <1000 reproducciones, <2 años de antigüedad y género diferente a la base, retorna hasta 10 | `GET /api/canciones/{id}/recomendaciones/descubrimiento` |
+
+### Flujo de una Petición
+
+```
+HTTP Request (GET /api/canciones/{id}/recomendaciones/genero)
+    ↓
+CancionController.recomendarPorGenero(id)
+    ↓
+CancionService.recomendarPorGenero(id)
+    ↓  Busca la canción base y obtiene el catálogo completo
+    ↓
+RecomendacionPorGenero.recomendar(catalogo, base)  ← Se ejecuta la estrategia
+    ↓  Filtra por género, ordena, limita
+    ↓
+CancionService convierte entidades a DTOs
+    ↓
+Response JSON
+```
+
+### Contexto: CancionService
+
+`CancionService` actúa como el **Context** del patrón. Inyecta las 3 estrategias concretas por constructor y delega a cada una:
+
+```java
+private final RecomendacionPorGenero recomendacionPorGenero;
+private final RecomendacionPorPopularidad recomendacionPorPopularidad;
+private final RecomendacionDescubrimiento recomendacionDescubrimiento;
+
+public List<CancionDTO> recomendarPorGenero(UUID cancionId) {
+    Cancion base = cancionRepository.findById(cancionId)...;
+    List<Cancion> catalogo = cancionRepository.findAll();
+    return recomendacionPorGenero.recomendar(catalogo, base).stream()
+            .map(this::toDTO).toList();
+}
+```
+
+Para agregar una nueva estrategia (ej: `RecomendacionPorArtista`), solo se crea una nueva clase que implemente `EstrategiaRecomendacion`, se inyecta en el service y se expone un nuevo endpoint — sin modificar la lógica existente.
+
 ## Postman
 
 Importa `postman_collection.json` en Postman para probar todos los endpoints. Contiene 20 requests de prueba.
