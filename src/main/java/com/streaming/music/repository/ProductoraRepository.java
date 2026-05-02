@@ -25,4 +25,8 @@ public class ProductoraRepository {
     public boolean existsById(UUID id) {
         return productoras.containsKey(id);
     }
+
+    public void deleteById(UUID id) {
+        productoras.remove(id);
+    }
 }

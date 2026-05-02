@@ -18,6 +18,30 @@ public class GlobalExceptionHandler {
         return detail;
     }
 
+    @ExceptionHandler(ArtistaNotFoundException.class)
+    public ProblemDetail handleArtistaNotFound(ArtistaNotFoundException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        detail.setTitle("Artista no encontrado");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(AlbumNotFoundException.class)
+    public ProblemDetail handleAlbumNotFound(AlbumNotFoundException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        detail.setTitle("Álbum no encontrado");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(ProductoraNotFoundException.class)
+    public ProblemDetail handleProductoraNotFound(ProductoraNotFoundException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        detail.setTitle("Productora no encontrada");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleBadRequest(IllegalArgumentException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());

@@ -29,4 +29,8 @@ public class ArtistaRepository {
     public int count() {
         return artistas.size();
     }
+
+    public void deleteById(UUID id) {
+        artistas.remove(id);
+    }
 }

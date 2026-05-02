@@ -119,6 +119,9 @@ Desde la URL `http://localhost:8080/api-docs` se puede importar la colección di
 |---|---|---|
 | GET | `/api/artistas` | Listar artistas |
 | GET | `/api/artistas/{id}` | Artista por UUID |
+| POST | `/api/artistas` | Crear artista (201 Created) |
+| PUT | `/api/artistas/{id}` | Actualizar artista |
+| DELETE | `/api/artistas/{id}` | Eliminar artista (204 No Content) |
 
 ### Álbumes (`/api/albumes`)
 
@@ -126,6 +129,9 @@ Desde la URL `http://localhost:8080/api-docs` se puede importar la colección di
 |---|---|---|
 | GET | `/api/albumes` | Listar álbumes |
 | GET | `/api/albumes/{id}` | Álbum por UUID |
+| POST | `/api/albumes` | Crear álbum (201 Created, valida artista y productora) |
+| PUT | `/api/albumes/{id}` | Actualizar álbum |
+| DELETE | `/api/albumes/{id}` | Eliminar álbum (204 No Content) |
 
 ### Productoras (`/api/productoras`)
 
@@ -133,6 +139,9 @@ Desde la URL `http://localhost:8080/api-docs` se puede importar la colección di
 |---|---|---|
 | GET | `/api/productoras` | Listar productoras |
 | GET | `/api/productoras/{id}` | Productora por UUID |
+| POST | `/api/productoras` | Crear productora (201 Created) |
+| PUT | `/api/productoras/{id}` | Actualizar productora |
+| DELETE | `/api/productoras/{id}` | Eliminar productora (204 No Content) |
 
 ## Tests
 

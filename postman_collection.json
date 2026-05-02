@@ -259,6 +259,63 @@
               "path": ["api", "artistas", "{{artistaId}}"]
             }
           }
+        },
+        {
+          "name": "POST - Crear artista",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nuevo Artista\",\n  \"genero\": \"ROCK\",\n  \"biografia\": \"Biografía del artista\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/artistas",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "artistas"]
+            },
+            "description": "Crea un nuevo artista. El ID se genera automáticamente. Género debe ser: ROCK, POP, JAZZ, ELECTRÓNICA o CLÁSICA."
+          }
+        },
+        {
+          "name": "PUT - Actualizar artista",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Artista Actualizado\",\n  \"genero\": \"POP\",\n  \"biografia\": \"Biografía actualizada\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/artistas/{id}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "artistas", "{{artistaId}}"]
+            },
+            "description": "Actualiza todos los datos de un artista existente. Género debe ser: ROCK, POP, JAZZ, ELECTRÓNICA o CLÁSICA."
+          }
+        },
+        {
+          "name": "DELETE - Eliminar artista",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/artistas/{id}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "artistas", "{{artistaId}}"]
+            },
+            "description": "Elimina un artista por su UUID. Retorna 204 No Content si es exitoso, 404 si no existe."
+          }
         }
       ]
     },
@@ -292,6 +349,63 @@
               "path": ["api", "albumes", "{{albumId}}"]
             }
           }
+        },
+        {
+          "name": "POST - Crear álbum",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Nuevo Álbum\",\n  \"fechaLanzamiento\": \"2024-01-15\",\n  \"artistaId\": \"{{artistaId}}\",\n  \"productoraId\": \"{{productoraId}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/albumes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "albumes"]
+            },
+            "description": "Crea un nuevo álbum. El ID se genera automáticamente. Valida que el artista y la productora referenciados existan (400 si no)."
+          }
+        },
+        {
+          "name": "PUT - Actualizar álbum",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Álbum Actualizado\",\n  \"fechaLanzamiento\": \"2024-06-01\",\n  \"artistaId\": \"{{artistaId}}\",\n  \"productoraId\": \"{{productoraId}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/albumes/{id}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "albumes", "{{albumId}}"]
+            },
+            "description": "Actualiza todos los datos de un álbum existente. Valida que el artista y la productora referenciados existan (400 si no)."
+          }
+        },
+        {
+          "name": "DELETE - Eliminar álbum",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/albumes/{id}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "albumes", "{{albumId}}"]
+            },
+            "description": "Elimina un álbum por su UUID. Retorna 204 No Content si es exitoso, 404 si no existe."
+          }
         }
       ]
     },
@@ -324,6 +438,63 @@
               "port": "8080",
               "path": ["api", "productoras", "{{productoraId}}"]
             }
+          }
+        },
+        {
+          "name": "POST - Crear productora",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nueva Productora\",\n  \"pais\": \"Argentina\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/productoras",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "productoras"]
+            },
+            "description": "Crea una nueva productora/discográfica. El ID se genera automáticamente."
+          }
+        },
+        {
+          "name": "PUT - Actualizar productora",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Productora Actualizada\",\n  \"pais\": \"España\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/productoras/{id}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "productoras", "{{productoraId}}"]
+            },
+            "description": "Actualiza todos los datos de una productora existente."
+          }
+        },
+        {
+          "name": "DELETE - Eliminar productora",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/productoras/{id}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "productoras", "{{productoraId}}"]
+            },
+            "description": "Elimina una productora por su UUID. Retorna 204 No Content si es exitoso, 404 si no existe."
           }
         }
       ]

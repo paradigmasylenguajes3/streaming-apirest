@@ -25,4 +25,8 @@ public class AlbumRepository {
     public boolean existsById(UUID id) {
         return albumes.containsKey(id);
     }
+
+    public void deleteById(UUID id) {
+        albumes.remove(id);
+    }
 }
