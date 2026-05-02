@@ -235,7 +235,7 @@ public interface EstrategiaRecomendacion {
 }
 ```
 
-Define el contrato común: dado un catálogo completo y una canción base, retorna una lista de canciones recomendadas. Anotada con `@FunctionalInterface` para permitir también el uso con lambdas.
+Define el contrato común: dado un catálogo completo y una canción base, retorna una lista de canciones recomendadas.
 
 ### Estrategias Concretas
 

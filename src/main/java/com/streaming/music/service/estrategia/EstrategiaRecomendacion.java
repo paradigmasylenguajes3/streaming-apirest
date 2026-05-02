@@ -4,7 +4,6 @@ import com.streaming.music.model.Cancion;
 
 import java.util.List;
 
-@FunctionalInterface
 public interface EstrategiaRecomendacion {
     List<Cancion> recomendar(List<Cancion> catalogo, Cancion base);
 }
