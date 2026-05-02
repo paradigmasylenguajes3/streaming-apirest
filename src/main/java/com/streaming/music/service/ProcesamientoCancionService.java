@@ -5,9 +5,7 @@ import com.streaming.music.model.Genero;
 import com.streaming.music.repository.CancionRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service

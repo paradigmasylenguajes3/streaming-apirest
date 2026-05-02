@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java 21 Functional APIs en la práctica</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0F1117;
+  --bg2: #1A1D27;
+  --bg3: #13151F;
+  --accent: #4F8EF7;
+  --violet: #A78BFA;
+  --text: #F1F5F9;
+  --text2: #94A3B8;
+  --green: #34D399;
+  --red: #F87171;
+  --yellow: #FBBF24;
+  --code-bg: #0D1117;
+  --code-border: #30363D;
+  --kw: #FF7B72;
+  --type: #79C0FF;
+  --str: #A5D6FF;
+  --method: #D2A8FF;
+  --comment: #8B949E;
+  --num: #79C0FF;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  margin: 0; padding: 0;
+  color: var(--text);
+}
+
+.slide {
+  width: 1280px;
+  height: 720px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  padding: 0;
+  page-break-after: always;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── TOP BAR ─── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 52px;
+  background: var(--bg2);
+  border-bottom: 1px solid #22263A;
+  flex-shrink: 0;
+}
+.topbar-title { font-size: 13px; color: var(--text2); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
+.topbar-num { font-size: 13px; color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+/* ─── SLIDE BODY ─── */
+.slide-body {
+  flex: 1;
+  padding: 40px 56px 36px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.slide-title {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 28px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.slide-title .accent { color: var(--accent); }
+.slide-title .violet { color: var(--violet); }
+
+/* ─── COVER ─── */
+.slide-cover {
+  background: linear-gradient(135deg, #0F1117 0%, #131929 50%, #0F1117 100%);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.cover-eyebrow {
+  font-size: 13px; font-weight: 600; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 20px;
+}
+.cover-title {
+  font-size: 52px; font-weight: 800; line-height: 1.1;
+  color: var(--text); margin-bottom: 16px;
+}
+.cover-subtitle {
+  font-size: 22px; color: var(--text2); font-weight: 400; margin-bottom: 36px;
+}
+.cover-pills { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+.pill {
+  padding: 6px 18px; border-radius: 999px; font-size: 13px;
+  font-weight: 600; letter-spacing: .03em;
+}
+.pill-blue { background: rgba(79,142,247,.15); color: var(--accent); border: 1px solid rgba(79,142,247,.35); }
+.pill-violet { background: rgba(167,139,250,.15); color: var(--violet); border: 1px solid rgba(167,139,250,.35); }
+.pill-green { background: rgba(52,211,153,.15); color: var(--green); border: 1px solid rgba(52,211,153,.35); }
+.pill-yellow { background: rgba(251,191,36,.15); color: var(--yellow); border: 1px solid rgba(251,191,36,.35); }
+.cover-project {
+  background: var(--bg2); border: 1px solid #22263A;
+  border-radius: 12px; padding: 16px 32px;
+  font-size: 14px; color: var(--text2);
+}
+.cover-project strong { color: var(--text); }
+
+/* ─── CODE BLOCK ─── */
+.code-block {
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px;
+  background: #161B22;
+  border-bottom: 1px solid var(--code-border);
+}
+.code-filename { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2); }
+.code-dots { display: flex; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #FF5F57; } .dot-y { background: #FFBD2E; } .dot-g { background: #28C840; }
+pre.code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  padding: 16px 20px;
+  margin: 0;
+  white-space: pre;
+  overflow: hidden;
+  color: var(--text);
+}
+.ln { color: #3D4451; margin-right: 16px; user-select: none; display: inline-block; width: 18px; text-align: right; }
+.kw { color: var(--kw); }
+.ty { color: var(--type); }
+.st { color: var(--str); }
+.me { color: var(--method); }
+.cm { color: var(--comment); font-style: italic; }
+.nu { color: #79C0FF; }
+.op { color: #A8B5C5; }
+
+/* ─── TWO-COL ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1; min-height: 0; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; flex: 1; min-height: 0; }
+
+/* ─── CARD ─── */
+.card {
+  background: var(--bg2); border: 1px solid #22263A;
+  border-radius: 10px; padding: 20px 22px;
+}
+.card-title { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; }
+
+/* ─── GOOD / BAD ─── */
+.good-bad { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.good { border-top: 3px solid var(--green); }
+.bad  { border-top: 3px solid var(--red); }
+.good .card-title { color: var(--green); }
+.bad  .card-title { color: var(--red); }
+
+/* ─── TABLE ─── */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { background: #1E2235; color: var(--text2); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 9px 14px; border-bottom: 1px solid #1E2235; color: var(--text); }
+tr:nth-child(even) td { background: var(--bg3); }
+tr:hover td { background: #1E2235; }
+
+/* ─── BADGE ─── */
+.badge {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .04em;
+}
+.badge-blue   { background: rgba(79,142,247,.18); color: var(--accent); }
+.badge-violet { background: rgba(167,139,250,.18); color: var(--violet); }
+.badge-green  { background: rgba(52,211,153,.18); color: var(--green); }
+.badge-yellow { background: rgba(251,191,36,.18); color: var(--yellow); }
+.badge-red    { background: rgba(248,113,113,.18); color: var(--red); }
+
+/* ─── PIPELINE DIAGRAM ─── */
+.pipeline { display: flex; align-items: center; gap: 0; }
+.pipe-box {
+  flex: 1; background: var(--bg2); border: 1px solid #22263A;
+  border-radius: 8px; padding: 14px 10px; text-align: center;
+}
+.pipe-box .pipe-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+.pipe-box .pipe-name  { font-size: 14px; font-weight: 700; }
+.pipe-arrow { padding: 0 6px; color: var(--accent); font-size: 20px; flex-shrink: 0; }
+
+/* ─── HIGHLIGHT BLOCK ─── */
+.highlight-row { display: flex; gap: 16px; margin-bottom: 20px; }
+.hl-box {
+  flex: 1; background: var(--bg2); border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0; padding: 14px 16px;
+}
+.hl-box.v { border-left-color: var(--violet); }
+.hl-box.g { border-left-color: var(--green); }
+.hl-box.y { border-left-color: var(--yellow); }
+.hl-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.hl-desc  { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* ─── FLOW DIAGRAM ─── */
+.flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.flow-row { display: flex; align-items: center; gap: 16px; width: 100%; justify-content: center; }
+.flow-box {
+  background: var(--bg2); border: 1px solid #22263A;
+  border-radius: 8px; padding: 10px 20px; text-align: center;
+  font-size: 13px; font-weight: 600; min-width: 160px;
+}
+.flow-arrow-down { color: var(--accent); font-size: 18px; margin: 4px 0; }
+.flow-box.accent-box { border-color: var(--accent); color: var(--accent); }
+.flow-box.violet-box { border-color: var(--violet); color: var(--violet); }
+.flow-box.green-box  { border-color: var(--green);  color: var(--green); }
+
+/* ─── PRINT ─── */
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  body { background: var(--bg); }
+  .slide { page-break-after: always; }
+  ::-webkit-scrollbar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 01 ═══ -->
+<div class="slide slide-cover" style="display:flex;flex-direction:column;justify-content:center;align-items:center;">
+  <!-- decorative blobs -->
+  <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(79,142,247,.12) 0%,transparent 70%);top:-80px;right:-60px;pointer-events:none;"></div>
+  <div style="position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.1) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none;"></div>
+
+  <div class="cover-eyebrow">Programación III · Streaming Music REST API</div>
+  <div class="cover-title">Java 21 Functional APIs<br><span style="color:var(--accent);">en la práctica</span></div>
+  <div class="cover-subtitle">Aplicadas en una plataforma de streaming real</div>
+  <div class="cover-pills">
+    <span class="pill pill-blue">Stream&lt;T&gt;</span>
+    <span class="pill pill-violet">Optional&lt;T&gt;</span>
+    <span class="pill pill-green">Predicate&lt;T&gt;</span>
+    <span class="pill pill-yellow">Comparator&lt;T&gt;</span>
+    <span class="pill pill-blue">Collectors</span>
+    <span class="pill pill-violet">@FunctionalInterface</span>
+  </div>
+  <div class="cover-project">
+    <strong>Proyecto:</strong> Streaming Music REST API &nbsp;·&nbsp;
+    <strong>Stack:</strong> Java 21 + Spring Boot 3.x &nbsp;·&nbsp;
+    <strong>Storage:</strong> ConcurrentHashMap in-memory &nbsp;·&nbsp;
+    <strong>Pattern:</strong> Strategy
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 02 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Fundamentos · Stream&lt;T&gt;</span>
+    <span class="topbar-num">02 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">¿Qué es un <span class="accent">Stream</span>?</div>
+
+    <div class="highlight-row" style="margin-bottom:22px;">
+      <div class="hl-box">
+        <div class="hl-title">🚫 No almacena datos</div>
+        <div class="hl-desc">Un Stream es una vista sobre una fuente (Collection, array, I/O). No tiene su propio almacenamiento — no modifica la fuente original.</div>
+      </div>
+      <div class="hl-box v">
+        <div class="hl-title">💤 Evaluación lazy</div>
+        <div class="hl-desc">Las operaciones intermedias no se ejecutan hasta que una operación terminal las desencadena. Evita trabajo innecesario.</div>
+      </div>
+      <div class="hl-box g">
+        <div class="hl-title">1️⃣ Consumible una vez</div>
+        <div class="hl-desc">Una vez que el Stream es consumido por una operación terminal, no puede reutilizarse. Llamarlo dos veces lanza <code style="color:var(--red);font-family:JetBrains Mono,monospace;font-size:12px;">IllegalStateException</code>.</div>
+      </div>
+    </div>
+
+    <!-- pipeline diagram -->
+    <div style="margin-bottom:18px;">
+      <div style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;font-weight:600;">Pipeline de procesamiento</div>
+      <div class="pipeline">
+        <div class="pipe-box">
+          <div class="pipe-label">Fuente</div>
+          <div class="pipe-name" style="color:var(--accent);">Collection<br>/ Array</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box">
+          <div class="pipe-label">Intermedia</div>
+          <div class="pipe-name" style="color:var(--violet);">filter()</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box">
+          <div class="pipe-label">Intermedia</div>
+          <div class="pipe-name" style="color:var(--violet);">map()</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box">
+          <div class="pipe-label">Intermedia</div>
+          <div class="pipe-name" style="color:var(--violet);">sorted()</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box">
+          <div class="pipe-label">Terminal</div>
+          <div class="pipe-name" style="color:var(--green);">toList()</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div style="display:flex;align-items:center;gap:10px;"><div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="code-filename">ProcesamientoCancionService.java</span></div>
+        <span class="badge badge-blue">Stream real del proyecto</span>
+      </div>
+      <pre class="code"><span class="ln">1</span><span class="kw">return</span> cancionRepository.<span class="me">findAll</span>().<span class="me">stream</span>()       <span class="cm">// Fuente: Collection</span>
+<span class="ln">2</span>    .<span class="me">filter</span>(c <span class="op">-></span> genero <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> c.<span class="me">getGenero</span>() <span class="op">==</span> genero)      <span class="cm">// Intermedia</span>
+<span class="ln">3</span>    .<span class="me">filter</span>(c <span class="op">-></span> ratingMinimo <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> c.<span class="me">getRating</span>() <span class="op">&gt;=</span> ratingMinimo) <span class="cm">// Intermedia</span>
+<span class="ln">4</span>    .<span class="me">filter</span>(c <span class="op">-></span> duracionMaxima <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> c.<span class="me">getDuracionSegundos</span>() <span class="op">&lt;=</span> duracionMaxima)
+<span class="ln">5</span>    .<span class="me">toList</span>();                                          <span class="cm">// Terminal — dispara la ejecución</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 03 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Operaciones Intermedias</span>
+    <span class="topbar-num">03 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Operaciones <span class="accent">intermedias</span> — filtrar, transformar, ordenar</div>
+    <div class="two-col" style="gap:20px;flex:1;min-height:0;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-family:JetBrains Mono,monospace;font-size:15px;color:var(--method);font-weight:700;">filter(Predicate)</span>
+            <span class="badge badge-blue">Stateless</span>
+          </div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Conserva elementos que satisfacen el predicado.</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:8px 12px;font-family:JetBrains Mono,monospace;font-size:12px;">.<span class="me">filter</span>(c <span class="op">-></span> c.<span class="me">getRating</span>() <span class="op">&gt;=</span> <span class="nu">4</span>)</div>
+        </div>
+        <div class="card" style="padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-family:JetBrains Mono,monospace;font-size:15px;color:var(--method);font-weight:700;">map(Function)</span>
+            <span class="badge badge-blue">Stateless</span>
+          </div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Transforma cada elemento a otro tipo.</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:8px 12px;font-family:JetBrains Mono,monospace;font-size:12px;">.<span class="me">map</span>(<span class="kw">this</span>::<span class="me">toDTO</span>)</div>
+        </div>
+        <div class="card" style="padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-family:JetBrains Mono,monospace;font-size:15px;color:var(--method);font-weight:700;">sorted(Comparator)</span>
+            <span class="badge badge-yellow">Stateful</span>
+          </div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Ordena el stream. Requiere ver todos los elementos.</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:8px 12px;font-family:JetBrains Mono,monospace;font-size:12px;">.<span class="me">sorted</span>(<span class="ty">Comparator</span>.<span class="me">comparingInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>).<span class="me">reversed</span>())</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-family:JetBrains Mono,monospace;font-size:15px;color:var(--method);font-weight:700;">limit(long)</span>
+            <span class="badge badge-green">Short-circuit</span>
+          </div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Trunca el stream al número indicado. Muy eficiente.</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:8px 12px;font-family:JetBrains Mono,monospace;font-size:12px;">.<span class="me">limit</span>(<span class="nu">10</span>)  <span class="cm">// top10MasReproducidas()</span></div>
+        </div>
+        <div class="card" style="padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-family:JetBrains Mono,monospace;font-size:15px;color:var(--method);font-weight:700;">distinct()</span>
+            <span class="badge badge-yellow">Stateful</span>
+          </div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Elimina duplicados usando <code style="font-family:JetBrains Mono,monospace;color:var(--method);font-size:12px;">equals()</code>. Usa un Set interno.</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:8px 12px;font-family:JetBrains Mono,monospace;font-size:12px;">.<span class="me">map</span>(<span class="ty">Cancion</span>::<span class="me">getGenero</span>).<span class="me">distinct</span>()</div>
+        </div>
+        <div class="card" style="padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-family:JetBrains Mono,monospace;font-size:15px;color:var(--method);font-weight:700;">flatMap(Function)</span>
+            <span class="badge badge-blue">Stateless</span>
+          </div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Aplana streams anidados. Esencial para colecciones de colecciones.</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:8px 12px;font-family:JetBrains Mono,monospace;font-size:12px;">.<span class="me">flatMap</span>(album <span class="op">-></span> album.<span class="me">getCanciones</span>().<span class="me">stream</span>())</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 04 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Operaciones Terminales</span>
+    <span class="topbar-num">04 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Operaciones <span class="violet">terminales</span> — consumen el stream</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;flex:1;min-height:0;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="border-top:2px solid var(--accent);">
+          <div class="card-title" style="color:var(--accent);">toList() vs collect()</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:10px 12px;font-family:JetBrains Mono,monospace;font-size:12px;"><span class="cm">// Java 16+ — unmodifiable, más conciso</span>
+.<span class="me">toList</span>()
+
+<span class="cm">// Collect a mutable list</span>
+.<span class="me">collect</span>(<span class="ty">Collectors</span>.<span class="me">toList</span>())
+
+<span class="cm">// Proyecto: top10MasReproducidas()</span>
+.<span class="me">sorted</span>(comparator).<span class="me">limit</span>(<span class="nu">10</span>).<span class="me">toList</span>()</div>
+        </div>
+        <div class="card" style="border-top:2px solid var(--violet);">
+          <div class="card-title" style="color:var(--violet);">max / min</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:10px 12px;font-family:JetBrains Mono,monospace;font-size:12px;"><span class="cm">// artistaMasPopular() — max por valor</span>
+.<span class="me">max</span>(<span class="ty">Map.Entry</span>.<span class="me">comparingByValue</span>())
+
+<span class="cm">// Retorna Optional&lt;T&gt;</span>
+.<span class="me">map</span>(e <span class="op">-></span> <span class="kw">new</span> <span class="ty">ArtistaEstadistica</span>(e.<span class="me">getKey</span>(), e.<span class="me">getValue</span>()))
+.<span class="me">orElse</span>(<span class="kw">null</span>)</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="border-top:2px solid var(--green);">
+          <div class="card-title" style="color:var(--green);">findFirst / anyMatch</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:10px 12px;font-family:JetBrains Mono,monospace;font-size:12px;"><span class="cm">// BusquedaService — búsqueda binaria</span>
+<span class="kw">return</span> <span class="ty">Optional</span>.<span class="me">of</span>(ordenadas.<span class="me">get</span>(mid));
+<span class="kw">return</span> <span class="ty">Optional</span>.<span class="me">empty</span>();
+
+<span class="cm">// Short-circuit — para cuando hay match</span>
+.<span class="me">anyMatch</span>(c <span class="op">-></span> c.<span class="me">getGenero</span>() <span class="op">==</span> genero)
+.<span class="me">allMatch</span>(c <span class="op">-></span> c.<span class="me">getRating</span>() <span class="op">&gt;</span> <span class="nu">3.0</span>)</div>
+        </div>
+        <div class="card" style="border-top:2px solid var(--yellow);">
+          <div class="card-title" style="color:var(--yellow);">reduce</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:10px 12px;font-family:JetBrains Mono,monospace;font-size:12px;"><span class="cm">// Combinar predicados con AND</span>
+<span class="ty">Predicate</span>&lt;<span class="ty">Cancion</span>&gt; combinado <span class="op">=</span> predicados.<span class="me">stream</span>()
+    .<span class="me">reduce</span>(<span class="ty">Predicate</span>::<span class="me">and</span>)
+    .<span class="me">orElse</span>(c <span class="op">-></span> <span class="kw">true</span>);
+
+<span class="cm">// Suma total de reproducciones</span>
+.<span class="me">reduce</span>(<span class="nu">0</span>, <span class="ty">Integer</span>::<span class="me">sum</span>)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 05 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Collectors Avanzados</span>
+    <span class="topbar-num">05 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title"><span class="accent">Collectors</span> avanzados — groupingBy + downstream</div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;flex:1;min-height:0;">
+      <div class="code-block">
+        <div class="code-header">
+          <div style="display:flex;align-items:center;gap:10px;"><div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="code-filename">ProcesamientoCancionService.java</span></div>
+          <span class="badge badge-violet">3 métodos reales del proyecto</span>
+        </div>
+        <pre class="code"><span class="ln">1</span><span class="cm">// ① Promedio de rating por género — groupingBy + averagingDouble</span>
+<span class="ln">2</span><span class="kw">public</span> <span class="ty">Map</span>&lt;<span class="ty">Genero</span>, <span class="ty">Double</span>&gt; <span class="me">promedioRatingPorGenero</span>() {
+<span class="ln">3</span>    <span class="kw">return</span> cancionRepository.<span class="me">findAll</span>().<span class="me">stream</span>()
+<span class="ln">4</span>        .<span class="me">collect</span>(<span class="ty">Collectors</span>.<span class="me">groupingBy</span>(<span class="ty">Cancion</span>::<span class="me">getGenero</span>,
+<span class="ln">5</span>                 <span class="ty">Collectors</span>.<span class="me">averagingDouble</span>(<span class="ty">Cancion</span>::<span class="me">getRating</span>)));
+<span class="ln">6</span>}
+<span class="ln">7</span>
+<span class="ln">8</span><span class="cm">// ② Distribución por décadas — groupingBy + counting</span>
+<span class="ln">9</span><span class="kw">public</span> <span class="ty">Map</span>&lt;<span class="ty">String</span>, <span class="ty">Long</span>&gt; <span class="me">distribucionPorDecadas</span>() {
+<span class="ln">10</span>    <span class="kw">return</span> cancionRepository.<span class="me">findAll</span>().<span class="me">stream</span>()
+<span class="ln">11</span>        .<span class="me">collect</span>(<span class="ty">Collectors</span>.<span class="me">groupingBy</span>(
+<span class="ln">12</span>            c <span class="op">-></span> (c.<span class="me">getFechaLanzamiento</span>().<span class="me">getYear</span>() <span class="op">/</span> <span class="nu">10</span> <span class="op">*</span> <span class="nu">10</span>) <span class="op">+</span> <span class="st">"s"</span>,
+<span class="ln">13</span>            <span class="ty">Collectors</span>.<span class="me">counting</span>()));
+<span class="ln">14</span>}
+<span class="ln">15</span>
+<span class="ln">16</span><span class="cm">// ③ Artista más popular — groupingBy + summingInt</span>
+<span class="ln">17</span>.<span class="me">collect</span>(<span class="ty">Collectors</span>.<span class="me">groupingBy</span>(<span class="ty">Cancion</span>::<span class="me">getArtistaId</span>,
+<span class="ln">18</span>         <span class="ty">Collectors</span>.<span class="me">summingInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>)))</pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div class="card" style="background:rgba(79,142,247,.08);border-color:rgba(79,142,247,.25);">
+          <div style="font-family:JetBrains Mono,monospace;font-size:14px;color:var(--method);font-weight:700;margin-bottom:6px;">averagingDouble</div>
+          <div style="font-size:13px;color:var(--text2);">Promedio de un campo double. Retorna <code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--type);">Double</code>. Ideal para ratings.</div>
+        </div>
+        <div class="card" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);">
+          <div style="font-family:JetBrains Mono,monospace;font-size:14px;color:var(--method);font-weight:700;margin-bottom:6px;">summingInt</div>
+          <div style="font-size:13px;color:var(--text2);">Suma un campo int. Retorna <code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--type);">Integer</code>. Ideal para reproducciones totales.</div>
+        </div>
+        <div class="card" style="background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.25);">
+          <div style="font-family:JetBrains Mono,monospace;font-size:14px;color:var(--method);font-weight:700;margin-bottom:6px;">counting</div>
+          <div style="font-size:13px;color:var(--text2);">Cuenta elementos por grupo. Retorna <code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--type);">Long</code>. Para histogramas y distribuciones.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 06 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Optional&lt;T&gt;</span>
+    <span class="topbar-num">06 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title"><span class="violet">Optional&lt;T&gt;</span> — eliminar NullPointerException</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;min-height:0;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="code-block">
+          <div class="code-header">
+            <div style="display:flex;align-items:center;gap:10px;"><div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="code-filename">CancionRepository.java</span></div>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="kw">public</span> <span class="ty">Optional</span>&lt;<span class="ty">Cancion</span>&gt; <span class="me">findById</span>(<span class="ty">UUID</span> id) {
+<span class="ln">2</span>    <span class="cm">// ofNullable wrappea el resultado del Map</span>
+<span class="ln">3</span>    <span class="kw">return</span> <span class="ty">Optional</span>.<span class="me">ofNullable</span>(canciones.<span class="me">get</span>(id));
+<span class="ln">4</span>}</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <div style="display:flex;align-items:center;gap:10px;"><div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><span class="code-filename">CancionService.java</span></div>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="cm">// orElseThrow — lanza excepción custom</span>
+<span class="ln">2</span><span class="ty">Cancion</span> cancion <span class="op">=</span> cancionRepository.<span class="me">findById</span>(id)
+<span class="ln">3</span>    .<span class="me">orElseThrow</span>(() <span class="op">-></span> <span class="kw">new</span> <span class="ty">CancionNotFoundException</span>(id));
+<span class="ln">4</span>
+<span class="ln">5</span><span class="cm">// map — transforma si presente</span>
+<span class="ln">6</span>artistaRepository.<span class="me">findById</span>(cancion.<span class="me">getArtistaId</span>())
+<span class="ln">7</span>    .<span class="me">map</span>(<span class="ty">ArtistaDTO</span>::<span class="me">from</span>)
+<span class="ln">8</span>    .<span class="me">orElse</span>(<span class="kw">null</span>);</pre>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card good">
+          <div class="card-title">✅ BUENO — API semántica</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:10px 12px;font-family:JetBrains Mono,monospace;font-size:12px;margin-bottom:8px;">cancionRepository.<span class="me">findById</span>(id)
+    .<span class="me">orElseThrow</span>(() <span class="op">-></span> <span class="kw">new</span> <span class="ty">CancionNotFoundException</span>(id))</div>
+          <div style="font-size:12px;color:var(--green);">Expresa la intención claramente. El caller sabe que puede fallar.</div>
+        </div>
+        <div class="card bad">
+          <div class="card-title">❌ MALO — get() sin verificar</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:10px 12px;font-family:JetBrains Mono,monospace;font-size:12px;margin-bottom:8px;"><span class="ty">Optional</span>&lt;<span class="ty">Cancion</span>&gt; opt <span class="op">=</span> repo.<span class="me">findById</span>(id);
+opt.<span class="me">get</span>(); <span class="cm">// NoSuchElementException si vacío!</span></div>
+          <div style="font-size:12px;color:var(--red);">Peor que un NPE: es engañoso. Nunca usar <code style="font-family:JetBrains Mono,monospace;">get()</code> sin isPresent() antes.</div>
+        </div>
+        <div class="card bad">
+          <div class="card-title">❌ MALO — Optional como campo</div>
+          <div style="background:var(--code-bg);border-radius:6px;padding:10px 12px;font-family:JetBrains Mono,monospace;font-size:12px;margin-bottom:8px;"><span class="kw">private</span> <span class="ty">Optional</span>&lt;<span class="ty">String</span>&gt; titulo; <span class="cm">// ❌</span></div>
+          <div style="font-size:12px;color:var(--red);">Optional es para retorno, no para estado. No es Serializable.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 07 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Predicate&lt;T&gt; · Composición</span>
+    <span class="topbar-num">07 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title"><span class="accent">Predicate&lt;T&gt;</span> — composición y reducción dinámica</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;min-height:0;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:13px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Operadores de composición</div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">Composición manual</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="ty">Predicate</span>&lt;<span class="ty">Cancion</span>&gt; esRock <span class="op">=</span>
+<span class="ln">2</span>    c <span class="op">-></span> c.<span class="me">getGenero</span>() <span class="op">==</span> <span class="ty">Genero</span>.ROCK;
+<span class="ln">3</span>
+<span class="ln">4</span><span class="ty">Predicate</span>&lt;<span class="ty">Cancion</span>&gt; esPopular <span class="op">=</span>
+<span class="ln">5</span>    c <span class="op">-></span> c.<span class="me">getReproducciones</span>() <span class="op">&gt;</span> <span class="nu">50_000</span>;
+<span class="ln">6</span>
+<span class="ln">7</span><span class="cm">// and — ambas condiciones</span>
+<span class="ln">8</span>esRock.<span class="me">and</span>(esPopular)
+<span class="ln">9</span>
+<span class="ln">10</span><span class="cm">// or — cualquiera de las dos</span>
+<span class="ln">11</span>esRock.<span class="me">or</span>(esPopular)
+<span class="ln">12</span>
+<span class="ln">13</span><span class="cm">// negate — inversión lógica</span>
+<span class="ln">14</span>esPopular.<span class="me">negate</span>()</pre>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:13px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Reducción dinámica — proyecto real</div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">BusquedaService.java</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="kw">public</span> <span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; <span class="me">busquedaConPredicados</span>(
+<span class="ln">2</span>    <span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; canciones,
+<span class="ln">3</span>    <span class="ty">List</span>&lt;<span class="ty">Predicate</span>&lt;<span class="ty">Cancion</span>&gt;&gt; predicados) {
+<span class="ln">4</span>
+<span class="ln">5</span>    <span class="ty">Predicate</span>&lt;<span class="ty">Cancion</span>&gt; combinado <span class="op">=</span> predicados.<span class="me">stream</span>()
+<span class="ln">6</span>        .<span class="me">reduce</span>(<span class="ty">Predicate</span>::<span class="me">and</span>)   <span class="cm">// combina con AND</span>
+<span class="ln">7</span>        .<span class="me">orElse</span>(c <span class="op">-></span> <span class="kw">true</span>);       <span class="cm">// sin filtros → todo pasa</span>
+<span class="ln">8</span>
+<span class="ln">9</span>    <span class="kw">return</span> canciones.<span class="me">stream</span>()
+<span class="ln">10</span>        .<span class="me">filter</span>(combinado)
+<span class="ln">11</span>        .<span class="me">toList</span>();
+<span class="ln">12</span>}</pre>
+        </div>
+        <div class="card" style="background:rgba(79,142,247,.08);border-color:rgba(79,142,247,.25);">
+          <div style="font-size:13px;color:var(--text2);">La lista de predicados viene de la API REST: cada query param opcional agrega un predicado. Con 0 filtros → <code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--green);">c -&gt; true</code> retorna todo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 08 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Comparator&lt;T&gt;</span>
+    <span class="topbar-num">08 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title"><span class="violet">Comparator&lt;T&gt;</span> — ordenamiento expresivo</div>
+
+    <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:20px;flex:1;min-height:0;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">BusquedaService.java — switch expression</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="ty">Comparator</span>&lt;<span class="ty">Cancion</span>&gt; comparator <span class="op">=</span> <span class="kw">switch</span> (criterio.<span class="me">toLowerCase</span>()) {
+<span class="ln">2</span>    <span class="kw">case</span> <span class="st">"reproducciones"</span> <span class="op">-></span>
+<span class="ln">3</span>        <span class="ty">Comparator</span>.<span class="me">comparingInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>).<span class="me">reversed</span>();
+<span class="ln">4</span>    <span class="kw">case</span> <span class="st">"rating"</span> <span class="op">-></span>
+<span class="ln">5</span>        <span class="ty">Comparator</span>.<span class="me">comparingDouble</span>(<span class="ty">Cancion</span>::<span class="me">getRating</span>).<span class="me">reversed</span>();
+<span class="ln">6</span>    <span class="kw">case</span> <span class="st">"duracion"</span> <span class="op">-></span>
+<span class="ln">7</span>        <span class="ty">Comparator</span>.<span class="me">comparingInt</span>(<span class="ty">Cancion</span>::<span class="me">getDuracionSegundos</span>);
+<span class="ln">8</span>    <span class="kw">case</span> <span class="st">"fecha"</span> <span class="op">-></span>
+<span class="ln">9</span>        <span class="ty">Comparator</span>.<span class="me">comparing</span>(<span class="ty">Cancion</span>::<span class="me">getFechaLanzamiento</span>).<span class="me">reversed</span>();
+<span class="ln">10</span>    <span class="kw">default</span> <span class="op">-></span> <span class="kw">throw new</span> <span class="ty">IllegalArgumentException</span>(<span class="st">"criterio no válido"</span>);
+<span class="ln">11</span>};</pre>
+        </div>
+      </div>
+
+      <div>
+        <table>
+          <thead>
+            <tr><th>Factory method</th><th>Tipo</th><th>Uso</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">comparingInt</code></td><td><span class="badge badge-blue">int</span></td><td>reproducciones, duración</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">comparingDouble</code></td><td><span class="badge badge-violet">double</span></td><td>rating, popularidad</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">comparing</code></td><td><span class="badge badge-green">Comparable</span></td><td>fechas, strings</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">reversed()</code></td><td><span class="badge badge-yellow">decorator</span></td><td>orden descendente</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">thenComparing</code></td><td><span class="badge badge-blue">chain</span></td><td>criterio secundario</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">CASE_INSENSITIVE_ORDER</code></td><td><span class="badge badge-violet">String</span></td><td>búsqueda binaria</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px;" class="card" style="background:rgba(167,139,250,.08);">
+          <div style="font-size:12px;color:var(--text2);line-height:1.6;padding:12px 14px;">
+            <div style="margin-bottom:6px;font-size:13px;color:var(--violet);font-weight:700;">Method reference vs Lambda</div>
+            <div style="background:var(--code-bg);border-radius:6px;padding:8px 12px;font-family:JetBrains Mono,monospace;font-size:12px;">
+<span class="cm">// Preferir method reference — más conciso</span>
+<span class="ty">Comparator</span>.<span class="me">comparingInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>)
+
+<span class="cm">// Lambda equivalente — más verbose</span>
+<span class="ty">Comparator</span>.<span class="me">comparingInt</span>(c <span class="op">-></span> c.<span class="me">getReproducciones</span>())</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 09 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Patrón Strategy + @FunctionalInterface</span>
+    <span class="topbar-num">09 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Patrón <span class="accent">Strategy</span> + <span class="violet">@FunctionalInterface</span></div>
+
+    <div style="display:grid;grid-template-columns:0.85fr 1.15fr;gap:20px;flex:1;min-height:0;">
+      <!-- left: interface + flow -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">EstrategiaRecomendacion.java</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="op">@</span><span class="ty">FunctionalInterface</span>
+<span class="ln">2</span><span class="kw">public interface</span> <span class="ty">EstrategiaRecomendacion</span> {
+<span class="ln">3</span>    <span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; <span class="me">recomendar</span>(
+<span class="ln">4</span>        <span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; catalogo,
+<span class="ln">5</span>        <span class="ty">Cancion</span> base
+<span class="ln">6</span>    );
+<span class="ln">7</span>}</pre>
+        </div>
+        <!-- HTTP flow -->
+        <div style="background:var(--bg2);border:1px solid #22263A;border-radius:10px;padding:14px 16px;">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;font-weight:600;">Flujo HTTP request</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="background:#1E2235;border:1px solid rgba(79,142,247,.3);border-radius:6px;padding:6px 20px;font-size:12px;font-weight:600;color:var(--accent);width:100%;text-align:center;">GET /canciones/{id}/recomendaciones</div>
+            <div style="color:var(--accent);font-size:14px;">↓</div>
+            <div style="background:#1E2235;border:1px solid #22263A;border-radius:6px;padding:6px 20px;font-size:12px;color:var(--text);width:100%;text-align:center;">CancionController</div>
+            <div style="color:var(--accent);font-size:14px;">↓</div>
+            <div style="background:#1E2235;border:1px solid #22263A;border-radius:6px;padding:6px 20px;font-size:12px;color:var(--text);width:100%;text-align:center;">CancionService</div>
+            <div style="color:var(--accent);font-size:14px;">↓</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;width:100%;">
+              <div style="background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);border-radius:6px;padding:5px 4px;font-size:10px;font-weight:700;color:var(--accent);text-align:center;">PorGenero</div>
+              <div style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);border-radius:6px;padding:5px 4px;font-size:10px;font-weight:700;color:var(--violet);text-align:center;">Popularidad</div>
+              <div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:6px;padding:5px 4px;font-size:10px;font-weight:700;color:var(--green);text-align:center;">Descubrim.</div>
+            </div>
+            <div style="color:var(--accent);font-size:14px;">↓</div>
+            <div style="background:#1E2235;border:1px solid rgba(52,211,153,.3);border-radius:6px;padding:6px 20px;font-size:12px;color:var(--green);width:100%;text-align:center;">List&lt;CancionDTO&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right: 3 strategies -->
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">RecomendacionPorGenero.java</span>
+            <span class="badge badge-blue">mismo género · top 10</span>
+          </div>
+          <pre class="code" style="font-size:12px;"><span class="kw">return</span> catalogo.<span class="me">stream</span>()
+    .<span class="me">filter</span>(c <span class="op">-></span> !c.<span class="me">equals</span>(base))
+    .<span class="me">filter</span>(c <span class="op">-></span> c.<span class="me">getGenero</span>() <span class="op">==</span> base.<span class="me">getGenero</span>())
+    .<span class="me">sorted</span>((a, b) <span class="op">-></span> <span class="ty">Integer</span>.<span class="me">compare</span>(b.<span class="me">getReproducciones</span>(), a.<span class="me">getReproducciones</span>()))
+    .<span class="me">limit</span>(<span class="nu">10</span>).<span class="me">toList</span>();</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">RecomendacionDescubrimiento.java</span>
+            <span class="badge badge-green">poco conocidas · distinto género</span>
+          </div>
+          <pre class="code" style="font-size:12px;"><span class="kw">return</span> catalogo.<span class="me">stream</span>()
+    .<span class="me">filter</span>(c <span class="op">-></span> !c.<span class="me">equals</span>(base))
+    .<span class="me">filter</span>(c <span class="op">-></span> c.<span class="me">getReproducciones</span>() <span class="op">&lt;</span> <span class="nu">1000</span>)
+    .<span class="me">filter</span>(c <span class="op">-></span> <span class="ty">ChronoUnit</span>.YEARS.<span class="me">between</span>(
+        c.<span class="me">getFechaLanzamiento</span>(), <span class="ty">LocalDate</span>.<span class="me">now</span>()) <span class="op">&lt;</span> <span class="nu">2</span>)
+    .<span class="me">filter</span>(c <span class="op">-></span> c.<span class="me">getGenero</span>() <span class="op">!=</span> base.<span class="me">getGenero</span>())
+    .<span class="me">limit</span>(<span class="nu">10</span>).<span class="me">toList</span>();</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 10 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Streams Primitivos · IntStream</span>
+    <span class="topbar-num">10 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Streams <span class="accent">primitivos</span> — evitar autoboxing</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;min-height:0;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;">
+          Los streams primitivos (<code style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--type);">IntStream</code>, <code style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--type);">LongStream</code>, <code style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--type);">DoubleStream</code>) evitan el costoso boxing/unboxing de <code style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--type);">Integer</code>/<code style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--type);">Double</code>.
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">IntStream — estadísticas sin autoboxing</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="cm">// mapToInt — convierte a IntStream</span>
+<span class="ln">2</span><span class="kw">int</span> totalRepros <span class="op">=</span> cancionRepository.<span class="me">findAll</span>().<span class="me">stream</span>()
+<span class="ln">3</span>    .<span class="me">mapToInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>)
+<span class="ln">4</span>    .<span class="me">sum</span>();
+<span class="ln">5</span>
+<span class="ln">6</span><span class="cm">// average retorna OptionalDouble</span>
+<span class="ln">7</span><span class="ty">OptionalDouble</span> promedio <span class="op">=</span> cancionRepository.<span class="me">findAll</span>().<span class="me">stream</span>()
+<span class="ln">8</span>    .<span class="me">mapToInt</span>(<span class="ty">Cancion</span>::<span class="me">getDuracionSegundos</span>)
+<span class="ln">9</span>    .<span class="me">average</span>();
+<span class="ln">10</span>
+<span class="ln">11</span><span class="cm">// IntStream.range — índices sin lista</span>
+<span class="ln">12</span><span class="ty">IntStream</span>.<span class="me">range</span>(<span class="nu">0</span>, canciones.<span class="me">size</span>())
+<span class="ln">13</span>    .<span class="me">filter</span>(i <span class="op">-></span> canciones.<span class="me">get</span>(i).<span class="me">getRating</span>() <span class="op">&gt;</span> <span class="nu">4.5</span>)
+<span class="ln">14</span>    .<span class="me">mapToObj</span>(canciones::<span class="me">get</span>)
+<span class="ln">15</span>    .<span class="me">toList</span>();</pre>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="card bad" style="padding:14px;">
+            <div class="card-title">❌ Con autoboxing</div>
+            <div style="background:var(--code-bg);border-radius:6px;padding:8px 10px;font-family:JetBrains Mono,monospace;font-size:11px;"><span class="ty">Stream</span>&lt;<span class="ty">Integer</span>&gt; s <span class="op">=</span>
+  canciones.<span class="me">stream</span>()
+    .<span class="me">map</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>);
+<span class="cm">// int → Integer → int</span></div>
+          </div>
+          <div class="card good" style="padding:14px;">
+            <div class="card-title">✅ Sin autoboxing</div>
+            <div style="background:var(--code-bg);border-radius:6px;padding:8px 10px;font-family:JetBrains Mono,monospace;font-size:11px;"><span class="ty">IntStream</span> s <span class="op">=</span>
+  canciones.<span class="me">stream</span>()
+    .<span class="me">mapToInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>);
+<span class="cm">// siempre int primitivo</span></div>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Método</th><th>Retorna</th><th>Uso</th></tr></thead>
+          <tbody>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">sum()</code></td><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--type);">int</code></td><td>total reproducciones</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">average()</code></td><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--type);">OptionalDouble</code></td><td>duración media</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">max()</code></td><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--type);">OptionalInt</code></td><td>pico de reproducciones</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">boxed()</code></td><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--type);">Stream&lt;Integer&gt;</code></td><td>cuando necesitas objetos</td></tr>
+            <tr><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--method);">range(a,b)</code></td><td><code style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--type);">IntStream</code></td><td>índices, iteración</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 11 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Optional + Stream Interop</span>
+    <span class="topbar-num">11 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title"><span class="violet">Optional</span> + <span class="accent">Stream</span> — interoperabilidad</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;min-height:0;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;">
+          Desde Java 9, <code style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--method);">Optional.stream()</code> retorna un Stream de 0 ó 1 elementos. Combinado con <code style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--method);">flatMap</code>, filtra vacíos de forma elegante.
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">Convertir IDs a canciones — filtrando ausentes</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="ty">List</span>&lt;<span class="ty">UUID</span>&gt; ids <span class="op">=</span> <span class="ty">List</span>.<span class="me">of</span>(id1, id2, id3);
+<span class="ln">2</span>
+<span class="ln">3</span><span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; encontradas <span class="op">=</span> ids.<span class="me">stream</span>()
+<span class="ln">4</span>    .<span class="me">map</span>(cancionRepository::findById) <span class="cm">// Stream&lt;Optional&lt;Cancion&gt;&gt;</span>
+<span class="ln">5</span>    .<span class="me">flatMap</span>(<span class="ty">Optional</span>::<span class="me">stream</span>)        <span class="cm">// filtra los empty()</span>
+<span class="ln">6</span>    .<span class="me">toList</span>();                          <span class="cm">// solo las existentes</span>
+<span class="ln">7</span>
+<span class="ln">8</span><span class="cm">// CancionService.java — toDTO con Optional.map</span>
+<span class="ln">9</span><span class="kw">private</span> <span class="ty">CancionDTO</span> <span class="me">toDTO</span>(<span class="ty">Cancion</span> cancion) {
+<span class="ln">10</span>    <span class="ty">ArtistaDTO</span> artistaDTO <span class="op">=</span> artistaRepository
+<span class="ln">11</span>        .<span class="me">findById</span>(cancion.<span class="me">getArtistaId</span>())
+<span class="ln">12</span>        .<span class="me">map</span>(<span class="ty">ArtistaDTO</span>::<span class="me">from</span>)
+<span class="ln">13</span>        .<span class="me">orElse</span>(<span class="kw">null</span>);
+<span class="ln">14</span>    <span class="kw">return</span> <span class="ty">CancionDTO</span>.<span class="me">from</span>(cancion, artistaDTO, albumDTO);
+<span class="ln">15</span>}</pre>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Visualización del flatMap</div>
+        <div style="background:var(--bg2);border:1px solid #22263A;border-radius:10px;padding:18px;">
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;font-family:JetBrains Mono,monospace;">
+            <div style="color:var(--text2);">ids.stream()</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <span style="color:var(--accent);">id1</span>
+              <span style="color:var(--text2);">→</span>
+              <span style="background:rgba(79,142,247,.15);color:var(--accent);padding:2px 8px;border-radius:4px;">Optional[Cancion]</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <span style="color:var(--red);">id2</span>
+              <span style="color:var(--text2);">→</span>
+              <span style="background:rgba(248,113,113,.15);color:var(--red);padding:2px 8px;border-radius:4px;">Optional.empty()</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <span style="color:var(--accent);">id3</span>
+              <span style="color:var(--text2);">→</span>
+              <span style="background:rgba(79,142,247,.15);color:var(--accent);padding:2px 8px;border-radius:4px;">Optional[Cancion]</span>
+            </div>
+            <div style="border-top:1px dashed #22263A;margin:4px 0;padding-top:8px;color:var(--text2);">.flatMap(Optional::stream)</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span style="background:rgba(52,211,153,.15);color:var(--green);padding:3px 10px;border-radius:4px;font-weight:700;">Cancion1</span>
+              <span style="color:var(--text2);">(empty descartado)</span>
+              <span style="background:rgba(52,211,153,.15);color:var(--green);padding:3px 10px;border-radius:4px;font-weight:700;">Cancion3</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);">
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">
+            <strong style="color:var(--violet);">Ventaja:</strong> sin if-presente, sin filter(Optional::isPresent) + map(Optional::get). Una línea declarativa elimina todos los null checks.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 12 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Streams sobre Map · Pipeline avanzado</span>
+    <span class="topbar-num">12 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Pipeline avanzado — <code style="font-size:28px;color:var(--accent);">artistaMasPopular()</code></div>
+
+    <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:20px;flex:1;min-height:0;">
+      <div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">ProcesamientoCancionService.java</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="kw">public</span> <span class="ty">ArtistaEstadistica</span> <span class="me">artistaMasPopular</span>() {
+<span class="ln">2</span>    <span class="kw">return</span> cancionRepository.<span class="me">findAll</span>().<span class="me">stream</span>()
+<span class="ln">3</span>
+<span class="ln">4</span>        <span class="cm">// ① Agrupar por artista, sumar reproducciones</span>
+<span class="ln">5</span>        .<span class="me">collect</span>(<span class="ty">Collectors</span>.<span class="me">groupingBy</span>(
+<span class="ln">6</span>            <span class="ty">Cancion</span>::<span class="me">getArtistaId</span>,
+<span class="ln">7</span>            <span class="ty">Collectors</span>.<span class="me">summingInt</span>(<span class="ty">Cancion</span>::<span class="me">getReproducciones</span>)
+<span class="ln">8</span>        ))
+<span class="ln">9</span>
+<span class="ln">10</span>        <span class="cm">// ② Stream sobre las entradas del Map</span>
+<span class="ln">11</span>        .<span class="me">entrySet</span>().<span class="me">stream</span>()
+<span class="ln">12</span>
+<span class="ln">13</span>        <span class="cm">// ③ Máximo por valor (total reproducciones)</span>
+<span class="ln">14</span>        .<span class="me">max</span>(<span class="ty">Map.Entry</span>.<span class="me">comparingByValue</span>())
+<span class="ln">15</span>
+<span class="ln">16</span>        <span class="cm">// ④ Transformar Entry → record</span>
+<span class="ln">17</span>        .<span class="me">map</span>(e <span class="op">-></span> <span class="kw">new</span> <span class="ty">ArtistaEstadistica</span>(
+<span class="ln">18</span>            e.<span class="me">getKey</span>(), e.<span class="me">getValue</span>()))
+<span class="ln">19</span>
+<span class="ln">20</span>        <span class="cm">// ⑤ Catálogo vacío → null</span>
+<span class="ln">21</span>        .<span class="me">orElse</span>(<span class="kw">null</span>);
+<span class="ln">22</span>}
+<span class="ln">23</span>
+<span class="ln">24</span><span class="kw">public record</span> <span class="ty">ArtistaEstadistica</span>(<span class="ty">UUID</span> artistaId, <span class="kw">int</span> totalReproducciones) {}</pre>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Desglose del pipeline</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <span style="background:var(--accent);color:#0F1117;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">①</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">groupingBy + summingInt</div><div style="font-size:12px;color:var(--text2);">Produce <code style="font-family:JetBrains Mono,monospace;">Map&lt;UUID, Integer&gt;</code> — artistaId → total</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <span style="background:var(--violet);color:#0F1117;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">②</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">entrySet().stream()</div><div style="font-size:12px;color:var(--text2);">Crea un Stream de pares clave-valor del Map</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <span style="background:var(--green);color:#0F1117;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">③</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">max(comparingByValue)</div><div style="font-size:12px;color:var(--text2);">Encuentra la entrada con mayor valor. Retorna <code style="font-family:JetBrains Mono,monospace;">Optional</code></div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <span style="background:var(--yellow);color:#0F1117;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">④</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">Optional.map → record</div><div style="font-size:12px;color:var(--text2);">Transforma Entry al record Java 21 <code style="font-family:JetBrains Mono,monospace;">ArtistaEstadistica</code></div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <span style="background:var(--red);color:#0F1117;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">⑤</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">orElse(null)</div><div style="font-size:12px;color:var(--text2);">Maneja catálogo vacío. Mejor usar <code style="font-family:JetBrains Mono,monospace;">orElseThrow</code> en producción</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 13 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Búsqueda Binaria + Comparator</span>
+    <span class="topbar-num">13 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Búsqueda <span class="accent">binaria</span> con Streams + Comparator</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;min-height:0;">
+      <div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">BusquedaService.java</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="kw">public</span> <span class="ty">Optional</span>&lt;<span class="ty">Cancion</span>&gt; <span class="me">busquedaBinariaPorTitulo</span>(
+<span class="ln">2</span>        <span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; canciones, <span class="ty">String</span> titulo) {
+<span class="ln">3</span>
+<span class="ln">4</span>    <span class="cm">// O(n log n): ordenar antes de buscar</span>
+<span class="ln">5</span>    <span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; ordenadas <span class="op">=</span> canciones.<span class="me">stream</span>()
+<span class="ln">6</span>        .<span class="me">sorted</span>(<span class="ty">Comparator</span>.<span class="me">comparing</span>(
+<span class="ln">7</span>            <span class="ty">Cancion</span>::<span class="me">getTitulo</span>,
+<span class="ln">8</span>            <span class="ty">String</span>.CASE_INSENSITIVE_ORDER))
+<span class="ln">9</span>        .<span class="me">toList</span>();
+<span class="ln">10</span>
+<span class="ln">11</span>    <span class="kw">int</span> left <span class="op">=</span> <span class="nu">0</span>, right <span class="op">=</span> ordenadas.<span class="me">size</span>() <span class="op">-</span> <span class="nu">1</span>;
+<span class="ln">12</span>
+<span class="ln">13</span>    <span class="kw">while</span> (left <span class="op">&lt;=</span> right) {
+<span class="ln">14</span>        <span class="kw">int</span> mid <span class="op">=</span> left <span class="op">+</span> (right <span class="op">-</span> left) <span class="op">/</span> <span class="nu">2</span>;
+<span class="ln">15</span>        <span class="kw">int</span> cmp <span class="op">=</span> ordenadas.<span class="me">get</span>(mid).<span class="me">getTitulo</span>()
+<span class="ln">16</span>                              .<span class="me">compareToIgnoreCase</span>(titulo);
+<span class="ln">17</span>        <span class="kw">if</span> (cmp <span class="op">==</span> <span class="nu">0</span>) <span class="kw">return</span> <span class="ty">Optional</span>.<span class="me">of</span>(ordenadas.<span class="me">get</span>(mid));
+<span class="ln">18</span>        <span class="kw">else if</span> (cmp <span class="op">&lt;</span> <span class="nu">0</span>) left <span class="op">=</span> mid <span class="op">+</span> <span class="nu">1</span>;
+<span class="ln">19</span>        <span class="kw">else</span> right <span class="op">=</span> mid <span class="op">-</span> <span class="nu">1</span>;
+<span class="ln">20</span>    }
+<span class="ln">21</span>    <span class="kw">return</span> <span class="ty">Optional</span>.<span class="me">empty</span>();
+<span class="ln">22</span>}</pre>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="card" style="background:rgba(79,142,247,.08);border-color:rgba(79,142,247,.3);">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:4px;">Complejidad</div>
+            <div style="font-size:22px;font-weight:800;color:var(--accent);font-family:JetBrains Mono,monospace;">O(n log n)</div>
+            <div style="font-size:11px;color:var(--text2);">sort + O(log n) búsqueda</div>
+          </div>
+          <div class="card" style="background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.3);">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:4px;">Retorna</div>
+            <div style="font-size:16px;font-weight:800;color:var(--green);font-family:JetBrains Mono,monospace;">Optional&lt;T&gt;</div>
+            <div style="font-size:11px;color:var(--text2);">sin NPE, caller decide</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Combinación de APIs</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text2);">
+            <div><span style="color:var(--accent);font-weight:700;">Stream.sorted()</span> — genera lista inmutable ordenada</div>
+            <div><span style="color:var(--violet);font-weight:700;">Comparator.comparing()</span> — key extractor + comparador específico</div>
+            <div><span style="color:var(--green);font-weight:700;">String.CASE_INSENSITIVE_ORDER</span> — Comparator listo para strings</div>
+            <div><span style="color:var(--yellow);font-weight:700;">Optional.of() / empty()</span> — retorno semántico sin null</div>
+          </div>
+        </div>
+        <div class="card" style="background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.25);">
+          <div style="font-size:13px;color:var(--yellow);font-weight:700;margin-bottom:4px;">⚠️ Consideración de diseño</div>
+          <div style="font-size:12px;color:var(--text2);">Si el catálogo ya está ordenado y es estable, la lista puede ordenarse una vez en el repositorio y reutilizarse. El sort dentro del método es correcto para listas volátiles.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 14 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">CancionRepository · ConcurrentHashMap</span>
+    <span class="topbar-num">14 / 15</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title"><span class="accent">Repository</span> — Optional + ConcurrentHashMap</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;min-height:0;">
+      <div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">CancionRepository.java</span>
+          </div>
+          <pre class="code"><span class="ln">1</span><span class="op">@</span><span class="ty">Repository</span>
+<span class="ln">2</span><span class="kw">public class</span> <span class="ty">CancionRepository</span> {
+<span class="ln">3</span>
+<span class="ln">4</span>    <span class="cm">// Thread-safe sin synchronized explícito</span>
+<span class="ln">5</span>    <span class="kw">private final</span> <span class="ty">ConcurrentHashMap</span>&lt;<span class="ty">UUID</span>, <span class="ty">Cancion</span>&gt; canciones
+<span class="ln">6</span>        <span class="op">=</span> <span class="kw">new</span> <span class="ty">ConcurrentHashMap</span>&lt;&gt;();
+<span class="ln">7</span>
+<span class="ln">8</span>    <span class="kw">public</span> <span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; <span class="me">findAll</span>() {
+<span class="ln">9</span>        <span class="cm">// values() + ArrayList = snapshot inmutable del estado</span>
+<span class="ln">10</span>        <span class="kw">return new</span> <span class="ty">ArrayList</span>&lt;&gt;(canciones.<span class="me">values</span>());
+<span class="ln">11</span>    }
+<span class="ln">12</span>
+<span class="ln">13</span>    <span class="kw">public</span> <span class="ty">Optional</span>&lt;<span class="ty">Cancion</span>&gt; <span class="me">findById</span>(<span class="ty">UUID</span> id) {
+<span class="ln">14</span>        <span class="cm">// Map.get() retorna null si no existe</span>
+<span class="ln">15</span>        <span class="kw">return</span> <span class="ty">Optional</span>.<span class="me">ofNullable</span>(canciones.<span class="me">get</span>(id));
+<span class="ln">16</span>    }
+<span class="ln">17</span>
+<span class="ln">18</span>    <span class="kw">public void</span> <span class="me">saveAll</span>(<span class="ty">List</span>&lt;<span class="ty">Cancion</span>&gt; lista) {
+<span class="ln">19</span>        <span class="cm">// forEach funcional sobre la lista</span>
+<span class="ln">20</span>        lista.<span class="me">forEach</span>(c <span class="op">-></span> canciones.<span class="me">put</span>(c.<span class="me">getId</span>(), c));
+<span class="ln">21</span>    }
+<span class="ln">22</span>}</pre>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Puntos clave del diseño</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="hl-box">
+            <div class="hl-title">ofNullable — el puente entre Map y Optional</div>
+            <div class="hl-desc"><code style="font-family:JetBrains Mono,monospace;font-size:12px;">Map.get()</code> retorna <code style="font-family:JetBrains Mono,monospace;font-size:12px;">null</code> cuando la clave no existe. <code style="font-family:JetBrains Mono,monospace;font-size:12px;">ofNullable</code> convierte ese null en un Optional semántico sin if-null checks.</div>
+          </div>
+          <div class="hl-box v">
+            <div class="hl-title">new ArrayList&lt;&gt;(values()) — snapshot defensivo</div>
+            <div class="hl-desc">Los Streams operan sobre la copia. Mutaciones concurrentes al Map durante el pipeline no corrompen el stream en proceso.</div>
+          </div>
+          <div class="hl-box g">
+            <div class="hl-title">forEach en saveAll</div>
+            <div class="hl-desc">Equivalente funcional al for-each. ConcurrentHashMap.put() es thread-safe: safe bajo múltiples threads sin locks externos.</div>
+          </div>
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-filename">CancionService.java — uso del Optional</span>
+          </div>
+          <pre class="code" style="font-size:12px;"><span class="cm">// incrementarReproducciones</span>
+<span class="ty">Cancion</span> c <span class="op">=</span> cancionRepository.<span class="me">findById</span>(id)
+    .<span class="me">orElseThrow</span>(() <span class="op">-></span> <span class="kw">new</span> <span class="ty">CancionNotFoundException</span>(id));
+c.<span class="me">incrementarReproducciones</span>();   <span class="cm">// AtomicInteger thread-safe</span>
+<span class="kw">return</span> <span class="me">toDTO</span>(c);</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 15 ═══ -->
+<div class="slide">
+  <div class="topbar">
+    <span class="topbar-title">Resumen · Buenas Prácticas</span>
+    <span class="topbar-num">15 / 15</span>
+  </div>
+  <div class="slide-body" style="padding-top:30px;">
+    <div class="slide-title" style="margin-bottom:20px;">Cheat sheet — <span class="accent">cuándo usar cada API</span></div>
+
+    <table style="font-size:13px;">
+      <thead>
+        <tr>
+          <th style="width:140px;">API</th>
+          <th>Cuándo usarla</th>
+          <th>Ejemplo en el proyecto</th>
+          <th style="width:120px;">Evitar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-blue">Stream&lt;T&gt;</span></td>
+          <td>Transformar / filtrar colecciones declarativamente</td>
+          <td><code style="font-family:JetBrains Mono,monospace;font-size:12px;">top10MasReproducidas()</code></td>
+          <td style="font-size:12px;color:var(--red);">streams infinitos sin límite</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-violet">Optional&lt;T&gt;</span></td>
+          <td>Retorno que puede estar ausente (repositorios, búsqueda)</td>
+          <td><code style="font-family:JetBrains Mono,monospace;font-size:12px;">findById(UUID)</code></td>
+          <td style="font-size:12px;color:var(--red);">como campo de clase</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-green">Predicate&lt;T&gt;</span></td>
+          <td>Filtros dinámicos reutilizables y composibles</td>
+          <td><code style="font-family:JetBrains Mono,monospace;font-size:12px;">busquedaConPredicados()</code></td>
+          <td style="font-size:12px;color:var(--red);">lambda stateful compartida</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-yellow">Comparator&lt;T&gt;</span></td>
+          <td>Ordenamiento multi-criterio expresivo</td>
+          <td><code style="font-family:JetBrains Mono,monospace;font-size:12px;">ordenarPersonalizado()</code></td>
+          <td style="font-size:12px;color:var(--red);">comparar con == en Double</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-blue">Collectors</span></td>
+          <td>Agregar, agrupar, resumir datos</td>
+          <td><code style="font-family:JetBrains Mono,monospace;font-size:12px;">promedioRatingPorGenero()</code></td>
+          <td style="font-size:12px;color:var(--red);">collect en streams pequeños</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-violet">IntStream</span></td>
+          <td>Operaciones numéricas masivas (sum, avg, max)</td>
+          <td><code style="font-family:JetBrains Mono,monospace;font-size:12px;">mapToInt(Cancion::getReproducciones)</code></td>
+          <td style="font-size:12px;color:var(--red);">map a Integer (boxing)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-green">@FunctionalInterface</span></td>
+          <td>Contratos con una única función (Strategy, Command)</td>
+          <td><code style="font-family:JetBrains Mono,monospace;font-size:12px;">EstrategiaRecomendacion</code></td>
+          <td style="font-size:12px;color:var(--red);">más de un método abstracto</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;">
+      <div class="card" style="background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.25);padding:12px 14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">❌ Antipatrones comunes</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;">· <code style="font-family:JetBrains Mono,monospace;font-size:11px;">optional.get()</code> sin check<br>· Stream reutilizado<br>· sorted() antes de filter()<br>· peek() para lógica de negocio</div>
+      </div>
+      <div class="card" style="background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.25);padding:12px 14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">✅ Buenas prácticas</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;">· filter() antes de sorted()<br>· <code style="font-family:JetBrains Mono,monospace;font-size:11px;">mapToInt</code> sobre int primitivos<br>· <code style="font-family:JetBrains Mono,monospace;font-size:11px;">toList()</code> vs collect()<br>· reduce con identidad explícita</div>
+      </div>
+      <div class="card" style="background:rgba(79,142,247,.07);border-color:rgba(79,142,247,.25);padding:12px 14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;">⚡ Rendimiento</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;">· Stateless ops primero, stateful al final<br>· Short-circuit con <code style="font-family:JetBrains Mono,monospace;font-size:11px;">findFirst</code><br>· <code style="font-family:JetBrains Mono,monospace;font-size:11px;">limit()</code> es lazy<br>· Parallel streams: solo para datos grandes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE COUNT: 15 -->
+</body>
+</html>
