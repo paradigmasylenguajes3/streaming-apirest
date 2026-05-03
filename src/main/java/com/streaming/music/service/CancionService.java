@@ -91,7 +91,7 @@ public class CancionService {
     }
 
     public List<CancionDTO> top10() {
-        return procesamientoCancionService.top10MasReproducidas().stream()
+        return procesamientoCancionService.obtenerTopCanciones(10).stream()
                 .map(this::toDTO)
                 .toList();
     }
