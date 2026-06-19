@@ -66,7 +66,7 @@ body {
 /* ─── SLIDE BODY ─── */
 .slide-body {
   flex: 1;
-  padding: 40px 56px 36px;
+  padding: 30px 50px 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -175,7 +175,7 @@ pre.code {
 /* ─── TABLE ─── */
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th { background: #1E2235; color: var(--text2); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; text-align: left; }
-td { padding: 9px 14px; border-bottom: 1px solid #1E2235; color: var(--text); }
+td { padding: 4px 12px; border-bottom: 1px solid #1E2235; color: var(--text); }
 tr:nth-child(even) td { background: var(--bg3); }
 tr:hover td { background: #1E2235; }
 
@@ -1576,10 +1576,10 @@ c.<span class="me">incrementarReproducciones</span>();   <span class="cm">// Ato
     <span class="topbar-title">Resumen · Buenas Prácticas</span>
     <span class="topbar-num">21 / 21</span>
   </div>
-  <div class="slide-body" style="padding-top:30px;">
-    <div class="slide-title" style="margin-bottom:20px;">Cheat sheet — <span class="accent">cuándo usar cada API</span></div>
+  <div class="slide-body" style="padding-top:15px;">
+    <div class="slide-title" style="margin-bottom:10px;">Cheat sheet — <span class="accent">cuándo usar cada API</span></div>
 
-    <table style="font-size:13px;">
+    <table style="font-size:10.5px;margin-bottom:4px;">
       <thead>
         <tr>
           <th style="width:140px;">API</th>
@@ -1634,16 +1634,16 @@ c.<span class="me">incrementarReproducciones</span>();   <span class="cm">// Ato
       </tbody>
     </table>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;">
-      <div class="card" style="background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.25);padding:12px 14px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:5px;">
+      <div class="card" style="background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.25);padding:8px 12px;">
         <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">❌ Antipatrones comunes</div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6;">· <code style="font-family:JetBrains Mono,monospace;font-size:11px;">optional.get()</code> sin check<br>· Stream reutilizado<br>· sorted() antes de filter()<br>· peek() para lógica de negocio</div>
       </div>
-      <div class="card" style="background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.25);padding:12px 14px;">
+      <div class="card" style="background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.25);padding:8px 12px;">
         <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">✅ Buenas prácticas</div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6;">· filter() antes de sorted()<br>· <code style="font-family:JetBrains Mono,monospace;font-size:11px;">mapToInt</code> sobre int primitivos<br>· <code style="font-family:JetBrains Mono,monospace;font-size:11px;">toList()</code> vs collect()<br>· reduce con identidad explícita</div>
       </div>
-      <div class="card" style="background:rgba(79,142,247,.07);border-color:rgba(79,142,247,.25);padding:12px 14px;">
+      <div class="card" style="background:rgba(79,142,247,.07);border-color:rgba(79,142,247,.25);padding:8px 12px;">
         <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;">⚡ Rendimiento</div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6;">· Stateless ops primero, stateful al final<br>· Short-circuit con <code style="font-family:JetBrains Mono,monospace;font-size:11px;">findFirst</code><br>· <code style="font-family:JetBrains Mono,monospace;font-size:11px;">limit()</code> es lazy<br>· Parallel streams: solo para datos grandes</div>
       </div>

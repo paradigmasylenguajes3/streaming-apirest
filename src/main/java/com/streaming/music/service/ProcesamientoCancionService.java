@@ -26,10 +26,10 @@ public class ProcesamientoCancionService {
                 .toList();
     }
 
-    public List<Cancion> top10MasReproducidas() {
+    public List<Cancion> obtenerTopCanciones(int cantidad) {
         return cancionRepository.findAll().stream()
                 .sorted(Comparator.comparingInt(Cancion::getReproducciones).reversed())
-                .limit(10)
+                .limit(cantidad)
                 .toList();
     }
 
